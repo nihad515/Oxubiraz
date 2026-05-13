@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+apps/api/.env
+apps/api/.env.production
+
+# Cache
+.turbo/
+.cache/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Laravel specific
+apps/api/vendor/
+apps/api/storage/app/*
+apps/api/storage/framework/cache/*
+apps/api/storage/framework/sessions/*
+apps/api/storage/framework/testing/*
+apps/api/storage/framework/views/*
+apps/api/storage/logs/*
+apps/api/bootstrap/cache/*.php
+apps/api/public/storage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+.nyc_output
+
+# Docker volumes (local)
+docker/volumes/
+
+# Generated types
+apps/web/src/types/generated/

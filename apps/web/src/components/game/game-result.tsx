@@ -1,0 +1,168 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import ReactConfetti from 'react-confetti';
+import { RotateCcw, Trophy, Zap, CheckCircle, Clock, Star } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useGame } from '@/hooks/use-game';
+import { useString } from '@/hooks/use-string';
+import { formatWpm } from '@/lib/utils/format';
+
+interface GameResultProps {
+  onPlayAgain: () => void;
+}
+
+export function GameResult({ onPlayAgain }: GameResultProps) {
+  const { t } = useString();
+  const { session, finalResult, elapsedMs, clickedCount, lastClickedIndex } = useGame();
+  const windowSize = useRef({ width: window?.innerWidth ?? 0, height: window?.innerHeight ?? 0 });
+
+  if (!session) return null;
+
+  const totalWords = session.words.length;
+  const wordsRead = lastClickedIndex + 1;
+  const isCompleted = wordsRead === totalWords;
+  const duration = session.config.duration;
+  const actualSeconds = Math.min(elapsedMs / 1000, duration);
+  const wpm = actualSeconds > 0 ? Math.round((wordsRead / actualSeconds) * 60) : 0;
+  const accuracy = totalWords > 0 ? Math.round((wordsRead / totalWords) * 100) : 0;
+  const xpEarned = finalResult?.xp_earned ?? 0;
+
+  const getPerformanceRating = () => {
+    if (wpm >= 200) return { label: 'Excellent!', emoji: '🏆', color: 'text-yellow-500' };
+    if (wpm >= 120) return { label: 'Great!', emoji: '⭐', color: 'text-blue-500' };
+    if (wpm >= 80) return { label: 'Good!', emoji: '👍', color: 'text-green-500' };
+    return { label: 'Keep practicing!', emoji: '💪', color: 'text-muted-foreground' };
+  };
+
+  const rating = getPerformanceRating();
+
+  return (
+    <div className="space-y-6">
+      {isCompleted && wpm >= 100 && (
+        <ReactConfetti
+          width={windowSize.current.width}
+          height={windowSize.current.height}
+          numberOfPieces={200}
+          recycle={false}
+          gravity={0.3}
+        />
+      )}
+
+      {/* Hero result card */}
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+      >
+        <Card className="overflow-hidden border-2 border-primary/20">
+          <div className="bg-gradient-to-br from-brand-500 to-brand-700 p-8 text-center text-white">
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-5xl mb-2"
+            >
+              {rating.emoji}
+            </motion.div>
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.3, type: 'spring' }}
+              className="text-7xl font-black mb-2"
+            >
+              {wpm}
+            </motion.div>
+            <div className="text-2xl font-semibold opacity-90">{t('game.wpm')}</div>
+            <div className="mt-2 text-lg opacity-75">{rating.label}</div>
+          </div>
+
+          <CardContent className="p-6">
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {[
+                {
+                  icon: <CheckCircle size={20} className="text-green-500" />,
+                  value: `${wordsRead}/${totalWords}`,
+                  label: t('game.words_read', {}, 'Words Read'),
+                },
+                {
+                  icon: <Clock size={20} className="text-blue-500" />,
+                  value: `${Math.round(actualSeconds)}s`,
+                  label: t('game.time', {}, 'Time'),
+                },
+                {
+                  icon: <Trophy size={20} className="text-yellow-500" />,
+                  value: `${accuracy}%`,
+                  label: t('game.completion', {}, 'Completion'),
+                },
+                {
+                  icon: <Star size={20} className="text-purple-500" />,
+                  value: `+${xpEarned}`,
+                  label: t('game.xp_earned', {}, 'XP Earned'),
+                },
+              ].map(({ icon, value, label }) => (
+                <div key={label} className="flex flex-col items-center gap-1 rounded-xl border p-3 text-center">
+                  {icon}
+                  <span className="text-xl font-bold">{value}</span>
+                  <span className="text-xs text-muted-foreground">{label}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Completion progress */}
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{t('game.completion', {}, 'Completion')}</span>
+                <span className="font-medium">{accuracy}%</span>
+              </div>
+              <Progress value={accuracy} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* XP celebration */}
+      {xpEarned > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="rounded-xl border border-purple-200 bg-purple-50 p-4 text-center dark:border-purple-800 dark:bg-purple-950/30"
+        >
+          <div className="flex items-center justify-center gap-2 text-purple-700 dark:text-purple-300">
+            <Zap size={20} />
+            <span className="text-lg font-bold">
+              {t('achievement.xp_earned', { xp: xpEarned })}
+            </span>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Actions */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button
+          variant="game"
+          size="lg"
+          className="flex-1"
+          onClick={onPlayAgain}
+        >
+          <RotateCcw size={20} />
+          {t('game.play_again', {}, 'Play Again')}
+        </Button>
+        <Button
+          variant="outline"
+          size="lg"
+          className="flex-1"
+          onClick={() => window.history.back()}
+        >
+          {t('common.back', {}, 'Back')}
+        </Button>
+      </div>
+    </div>
+  );
+}

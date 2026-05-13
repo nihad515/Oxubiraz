@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+build/
+apps/api/vendor/
+apps/api/storage/
+coverage/
+playwright-report/
+*.min.js
+*.min.css
