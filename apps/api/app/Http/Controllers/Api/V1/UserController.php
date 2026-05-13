@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
@@ -221,5 +222,41 @@ class UserController extends Controller
         $request->user()->tokens()->where('id', '!=', $currentId)->delete();
 
         return response()->json(['status' => 'success', 'message' => 'All other sessions revoked.']);
+    }
+
+    public function export(Request $request): StreamedResponse
+    {
+        $users = QueryBuilder::for(User::class)
+            ->allowedFilters([
+                AllowedFilter::exact('role', null, false),
+                AllowedFilter::exact('school_id'),
+                AllowedFilter::exact('is_active'),
+                AllowedFilter::scope('search', 'search'),
+            ])
+            ->with(['roles', 'school'])
+            ->get();
+
+        $filename = 'users_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($users) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['id', 'username', 'first_name', 'last_name', 'email', 'role', 'school', 'level', 'xp', 'is_active', 'created_at']);
+            foreach ($users as $user) {
+                fputcsv($out, [
+                    $user->id,
+                    $user->username,
+                    $user->first_name,
+                    $user->last_name,
+                    $user->email,
+                    $user->roles->pluck('name')->join(','),
+                    $user->school?->name,
+                    $user->level,
+                    $user->xp,
+                    $user->is_active ? '1' : '0',
+                    $user->created_at->toDateTimeString(),
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Mail\WelcomeMail;
 use App\Models\User;
 use App\Enums\UserRole;
 use App\Enums\Locale;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -80,6 +82,10 @@ class AuthService
         ]);
 
         $user->assignRole($data['role']);
+
+        if ($user->email) {
+            Mail::to($user->email)->queue(new WelcomeMail($user));
+        }
 
         $expiration = now()->addMinutes(config('sanctum.expiration', 1440));
         $token = $user->createToken('web', ['*'], $expiration);

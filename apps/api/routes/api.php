@@ -85,6 +85,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
             Route::middleware('permission:manage_users')->group(function () {
                 Route::post('{user}/restore', [UserController::class, 'restore'])->name('restore');
+                Route::get('export', [UserController::class, 'export'])->name('export');
             });
         });
 
@@ -253,6 +254,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // Audit Logs
         Route::prefix('audit-logs')->name('audit-logs.')->middleware('permission:manage_settings')->group(function () {
             Route::get('/', [AuditLogController::class, 'index'])->name('index');
+            Route::get('export', [AuditLogController::class, 'export'])->name('export');
             Route::get('{id}', [AuditLogController::class, 'show'])->name('show');
         });
 
