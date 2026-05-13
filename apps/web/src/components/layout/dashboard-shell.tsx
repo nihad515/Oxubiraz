@@ -9,12 +9,15 @@ import { TopBar } from './top-bar';
 import { BottomNav } from './bottom-nav';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
+import { useRealtimeNotifications } from '@/hooks/use-realtime';
 import { cn } from '@/lib/utils/cn';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
   const { sidebarOpen, sidebarCollapsed } = useUiStore();
   const router = useRouter();
+
+  useRealtimeNotifications();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

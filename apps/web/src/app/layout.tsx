@@ -8,6 +8,7 @@ import { QueryProvider } from '@/components/providers/query-provider';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { StringProvider } from '@/components/providers/string-provider';
 import { I18nProvider } from '@/components/providers/i18n-provider';
+import { SwProvider } from '@/components/providers/sw-provider';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -74,6 +75,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <AuthProvider>
               <I18nProvider>
                 <StringProvider>
+                  <SwProvider />
                   {children}
                   <Toaster
                     position="top-right"
