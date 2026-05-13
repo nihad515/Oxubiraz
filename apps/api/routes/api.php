@@ -167,6 +167,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
                 Route::delete('{wordList}', [WordListController::class, 'destroy'])->name('destroy');
                 Route::post('{wordList}/words', [WordListController::class, 'addWords'])->name('add-words');
                 Route::delete('{wordList}/words/{word}', [WordListController::class, 'removeWord'])->name('remove-word');
+                Route::post('{wordList}/import', [WordListController::class, 'importWords'])->name('import');
+                Route::get('{wordList}/export', [WordListController::class, 'exportWords'])->name('export');
             });
         });
 

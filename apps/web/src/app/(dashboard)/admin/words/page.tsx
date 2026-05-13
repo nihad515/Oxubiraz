@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Upload, X, Tag } from 'lucide-react';
+import { BookOpen, Plus, Trash2, ChevronDown, ChevronUp, Upload, Download, X, Tag } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -67,6 +67,68 @@ interface Word {
   id: number;
   word: string;
   frequency?: number;
+}
+
+function WordListActions({ listId, listName }: { listId: number; listName: string }) {
+  const { t } = useString();
+  const queryClient = useQueryClient();
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const importMutation = useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return apiClient.post(API.words.import(listId), form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+    onSuccess: (res: any) => {
+      queryClient.invalidateQueries({ queryKey: ['word-list-words', listId] });
+      queryClient.invalidateQueries({ queryKey: ['word-lists'] });
+      const { imported, skipped } = res.data ?? {};
+      toast.success(t('words.import_success', {}, `${imported} words imported, ${skipped} skipped`));
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message ?? t('common.error', {}, 'Import failed'));
+    },
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) importMutation.mutate(file);
+    e.target.value = '';
+  };
+
+  const handleExport = () => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1${API.words.export(listId)}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `words_${listName}.csv`;
+    a.click();
+  };
+
+  return (
+    <div className="flex gap-1">
+      <input ref={fileRef} type="file" accept=".csv,.txt" className="hidden" onChange={handleFileChange} />
+      <Button
+        size="sm"
+        variant="ghost"
+        title={t('words.import_csv', {}, 'Import CSV')}
+        disabled={importMutation.isPending}
+        onClick={() => fileRef.current?.click()}
+      >
+        <Upload size={14} />
+      </Button>
+      <Button
+        size="sm"
+        variant="ghost"
+        title={t('words.export_csv', {}, 'Export CSV')}
+        onClick={handleExport}
+      >
+        <Download size={14} />
+      </Button>
+    </div>
+  );
 }
 
 function WordListWords({ listId }: { listId: number }) {
@@ -307,7 +369,8 @@ export default function AdminWordsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 shrink-0">
+                    <div className="flex gap-2 shrink-0 flex-wrap items-center">
+                      <WordListActions listId={list.id} listName={list.name} />
                       <Button
                         size="sm"
                         variant="ghost"

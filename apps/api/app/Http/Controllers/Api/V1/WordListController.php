@@ -120,4 +120,102 @@ class WordListController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Word removed.']);
     }
+
+    public function importWords(Request $request, WordList $wordList): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ]);
+
+        $path = $request->file('file')->getRealPath();
+        $handle = fopen($path, 'r');
+
+        if ($handle === false) {
+            return response()->json(['status' => 'error', 'message' => 'Cannot read file.'], 422);
+        }
+
+        $header = fgetcsv($handle);
+        if (!$header) {
+            fclose($handle);
+            return response()->json(['status' => 'error', 'message' => 'Empty file.'], 422);
+        }
+
+        // Normalize header names — accept 'word'/'text', optional syllable_count/frequency
+        $header = array_map(fn ($h) => strtolower(trim($h)), $header);
+        $textCol = array_search('text', $header) !== false
+            ? array_search('text', $header)
+            : array_search('word', $header);
+
+        if ($textCol === false) {
+            fclose($handle);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'CSV must contain a "text" or "word" column.',
+            ], 422);
+        }
+
+        $syllableCol = array_search('syllable_count', $header);
+        $frequencyCol = array_search('frequency', $header);
+
+        $rows = [];
+        $skipped = 0;
+        $now = now()->toDateTimeString();
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $text = trim($row[$textCol] ?? '');
+
+            if ($text === '' || mb_strlen($text) > 100) {
+                $skipped++;
+                continue;
+            }
+
+            $rows[] = [
+                'word_list_id' => $wordList->id,
+                'text' => $text,
+                'syllable_count' => $syllableCol !== false && isset($row[$syllableCol])
+                    ? (int) $row[$syllableCol] ?: null
+                    : null,
+                'frequency' => $frequencyCol !== false && isset($row[$frequencyCol])
+                    ? (int) $row[$frequencyCol] ?: 1
+                    : 1,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
+        fclose($handle);
+
+        if (empty($rows)) {
+            return response()->json(['status' => 'error', 'message' => 'No valid words found in CSV.'], 422);
+        }
+
+        // Chunk inserts to avoid hitting DB parameter limits
+        collect($rows)->chunk(500)->each(fn ($chunk) => Word::insert($chunk->toArray()));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => count($rows) . ' words imported, ' . $skipped . ' skipped.',
+            'data' => ['imported' => count($rows), 'skipped' => $skipped],
+        ], 201);
+    }
+
+    public function exportWords(WordList $wordList): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $filename = 'words_' . str($wordList->name)->slug() . '_' . now()->format('Ymd') . '.csv';
+
+        return response()->streamDownload(function () use ($wordList) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['text', 'syllable_count', 'frequency']);
+
+            $wordList->words()
+                ->orderBy('frequency', 'desc')
+                ->chunk(500, function ($words) use ($handle) {
+                    foreach ($words as $word) {
+                        fputcsv($handle, [$word->text, $word->syllable_count, $word->frequency]);
+                    }
+                });
+
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
 }

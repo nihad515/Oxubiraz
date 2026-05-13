@@ -1,0 +1,123 @@
+name: CD — Deploy Oxubiraz
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: []
+    environment:
+      name: production
+      url: https://oxubiraz.az
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/api
+          file: docker/php/Dockerfile.prod
+          push: true
+          tags: ghcr.io/${{ github.repository }}/api:${{ github.sha }},ghcr.io/${{ github.repository }}/api:latest
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+      - name: Build and push Web image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/web
+          file: docker/web/Dockerfile.prod
+          push: true
+          tags: ghcr.io/${{ github.repository }}/web:${{ github.sha }},ghcr.io/${{ github.repository }}/web:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_PUSHER_KEY=${{ secrets.NEXT_PUBLIC_PUSHER_KEY }}
+            NEXT_PUBLIC_PUSHER_CLUSTER=${{ secrets.NEXT_PUBLIC_PUSHER_CLUSTER }}
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/oxubiraz
+
+            # Pull new images
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ github.repository }}/api:${{ github.sha }}
+            docker pull ghcr.io/${{ github.repository }}/web:${{ github.sha }}
+
+            # Update compose override with exact SHA tags
+            export API_TAG=${{ github.sha }}
+            export WEB_TAG=${{ github.sha }}
+
+            # Rolling update — zero downtime
+            docker compose up -d --no-deps --scale api=2 api
+            sleep 15
+            docker compose up -d --no-deps --scale api=1 api
+
+            docker compose up -d --no-deps web
+            docker compose up -d --no-deps nginx
+
+            # Run migrations (single shot, not scaled)
+            docker compose exec -T api php artisan migrate --force
+            docker compose exec -T api php artisan optimize
+
+            # Prune old images
+            docker image prune -f
+
+            echo "Deploy complete: ${{ github.sha }}"
+
+      - name: Notify deploy
+        if: always()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '❌' }} Deploy *${{ github.sha }}* to production: *${{ job.status }}*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ job.status == 'success' && '✅' || '❌' }} <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Deploy ${{ github.sha }}> → *${{ job.status }}*\n*Commit:* ${{ github.event.head_commit.message }}\n*Author:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        continue-on-error: true

@@ -111,6 +111,7 @@ export const API = {
     createItem: (listId: number) => `/word-lists/${listId}/words`,
     deleteItem: (listId: number, wordId: number) => `/word-lists/${listId}/words/${wordId}`,
     import: (listId: number) => `/word-lists/${listId}/import`,
+    export: (listId: number) => `/word-lists/${listId}/export`,
   },
 
   // Game
