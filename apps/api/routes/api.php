@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
-use App\Http\Controllers\Api\V1\Auth\SessionController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\RoleController;
 use App\Http\Controllers\Api\V1\PermissionController;
@@ -21,60 +20,71 @@ use App\Http\Controllers\Api\V1\CompetitionController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\SettingsController;
+use App\Http\Controllers\Api\V1\ParentController;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
 
-    // ───── Public Auth Routes ─────
+    // ───── Public Routes ─────
     Route::prefix('auth')->name('auth.')->group(function () {
         Route::post('login', [AuthController::class, 'login'])->name('login')
             ->middleware('throttle:auth');
         Route::post('register', [AuthController::class, 'register'])->name('register')
             ->middleware('throttle:auth');
-        Route::post('forgot-password', [PasswordController::class, 'forgotPassword'])->name('forgot-password')
+        Route::post('forgot-password', [PasswordController::class, 'forgot'])->name('forgot-password')
             ->middleware('throttle:auth');
-        Route::post('reset-password', [PasswordController::class, 'resetPassword'])->name('reset-password')
+        Route::post('reset-password', [PasswordController::class, 'reset'])->name('reset-password')
             ->middleware('throttle:auth');
     });
 
+    // Public strings endpoint (before auth guard)
+    Route::get('strings/locale/{locale}', [SystemStringController::class, 'byLocale'])->name('strings.by-locale');
+
+    // Public settings
+    Route::get('settings/public', [SettingsController::class, 'public'])->name('settings.public');
+
     // ───── Authenticated Routes ─────
-    Route::middleware(['auth:sanctum', 'verified.optional'])->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
 
         // Auth
         Route::prefix('auth')->name('auth.')->group(function () {
             Route::get('me', [AuthController::class, 'me'])->name('me');
             Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-            Route::post('verify-email', [EmailVerificationController::class, 'verify'])->name('verify-email');
-            Route::post('resend-verification', [EmailVerificationController::class, 'resend'])->name('resend-verification');
-            Route::get('sessions', [SessionController::class, 'index'])->name('sessions');
-            Route::delete('sessions/{sessionId}', [SessionController::class, 'revoke'])->name('sessions.revoke');
+            Route::post('email/send', [EmailVerificationController::class, 'send'])->name('email.send');
+            Route::get('email/status', [EmailVerificationController::class, 'status'])->name('email.status');
         });
 
-        // Users
-        Route::prefix('users')->name('users.')->group(function () {
-            Route::get('profile', [UserController::class, 'profile'])->name('profile');
-            Route::put('profile', [UserController::class, 'updateProfile'])->name('profile.update');
-            Route::post('profile/avatar', [UserController::class, 'uploadAvatar'])->name('avatar');
-            Route::put('change-password', [UserController::class, 'changePassword'])->name('change-password');
+        Route::get('auth/verify-email/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+            ->name('auth.verify-email');
 
-            Route::middleware('permission:view_users')->group(function () {
-                Route::get('/', [UserController::class, 'index'])->name('index');
-                Route::get('{user}', [UserController::class, 'show'])->name('show');
-            });
-            Route::middleware('permission:create_users')->group(function () {
-                Route::post('/', [UserController::class, 'store'])->name('store');
-            });
+        // Users — current user endpoints
+        Route::prefix('users/me')->name('users.me.')->group(function () {
+            Route::get('/', [UserController::class, 'me'])->name('index');
+            Route::patch('/', [UserController::class, 'updateMe'])->name('update');
+            Route::post('password', [UserController::class, 'updateMyPassword'])->name('password');
+            Route::post('avatar', [UserController::class, 'uploadAvatar'])->name('avatar');
+            Route::get('sessions', [UserController::class, 'sessions'])->name('sessions');
+            Route::delete('sessions/{tokenId}', [UserController::class, 'revokeSession'])->name('sessions.revoke');
+            Route::delete('sessions', [UserController::class, 'revokeAllSessions'])->name('sessions.revoke-all');
+        });
+
+        // Users — admin management
+        Route::prefix('users')->name('users.')->middleware('permission:view_users')->group(function () {
+            Route::get('/', [UserController::class, 'index'])->name('index');
+            Route::get('{user}', [UserController::class, 'show'])->name('show');
+
             Route::middleware('permission:edit_users')->group(function () {
-                Route::put('{user}', [UserController::class, 'update'])->name('update');
-                Route::patch('{user}', [UserController::class, 'update']);
-                Route::post('{user}/avatar', [UserController::class, 'updateAvatar'])->name('user-avatar');
+                Route::patch('{user}', [UserController::class, 'update'])->name('update');
+                Route::post('{user}/toggle-active', [UserController::class, 'toggleActive'])->name('toggle-active');
+                Route::post('{user}/assign-role', [UserController::class, 'assignRole'])->name('assign-role');
+                Route::post('{user}/password', [UserController::class, 'updatePassword'])->name('password');
             });
+
             Route::middleware('permission:delete_users')->group(function () {
                 Route::delete('{user}', [UserController::class, 'destroy'])->name('destroy');
-                Route::post('bulk-delete', [UserController::class, 'bulkDelete'])->name('bulk-delete');
             });
+
             Route::middleware('permission:manage_users')->group(function () {
-                Route::post('bulk-activate', [UserController::class, 'bulkActivate'])->name('bulk-activate');
-                Route::get('export', [UserController::class, 'export'])->name('export');
+                Route::post('{user}/restore', [UserController::class, 'restore'])->name('restore');
             });
         });
 
@@ -83,104 +93,97 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/', [RoleController::class, 'index'])->name('index');
             Route::post('/', [RoleController::class, 'store'])->name('store');
             Route::get('{role}', [RoleController::class, 'show'])->name('show');
-            Route::put('{role}', [RoleController::class, 'update'])->name('update');
+            Route::post('{role}/sync-permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
             Route::delete('{role}', [RoleController::class, 'destroy'])->name('destroy');
-            Route::put('{role}/permissions', [RoleController::class, 'syncPermissions'])->name('permissions');
         });
 
         // Permissions
         Route::prefix('permissions')->name('permissions.')->middleware('permission:manage_roles')->group(function () {
             Route::get('/', [PermissionController::class, 'index'])->name('index');
-            Route::get('groups', [PermissionController::class, 'groups'])->name('groups');
         });
 
         // Schools
         Route::prefix('schools')->name('schools.')->group(function () {
             Route::get('/', [SchoolController::class, 'index'])->name('index');
             Route::get('{school}', [SchoolController::class, 'show'])->name('show');
+            Route::get('{school}/classes', [SchoolController::class, 'classes'])->name('classes');
+
             Route::middleware('permission:manage_schools')->group(function () {
                 Route::post('/', [SchoolController::class, 'store'])->name('store');
-                Route::put('{school}', [SchoolController::class, 'update'])->name('update');
+                Route::patch('{school}', [SchoolController::class, 'update'])->name('update');
                 Route::delete('{school}', [SchoolController::class, 'destroy'])->name('destroy');
+                Route::post('{school}/classes', [SchoolController::class, 'storeClass'])->name('classes.store');
             });
-            Route::get('{school}/classes', [SchoolController::class, 'classes'])->name('classes');
-            Route::get('{school}/teachers', [SchoolController::class, 'teachers'])->name('teachers');
-            Route::get('{school}/students', [SchoolController::class, 'students'])->name('students');
         });
 
         // Classes
         Route::prefix('classes')->name('classes.')->group(function () {
-            Route::get('/', [ClassController::class, 'index'])->name('index');
+            Route::get('by-school', [ClassController::class, 'bySchool'])->name('by-school');
             Route::get('{class}', [ClassController::class, 'show'])->name('show');
+            Route::get('{class}/students', [ClassController::class, 'students'])->name('students');
+
             Route::middleware('permission:manage_schools')->group(function () {
-                Route::post('/', [ClassController::class, 'store'])->name('store');
-                Route::put('{class}', [ClassController::class, 'update'])->name('update');
+                Route::patch('{class}', [ClassController::class, 'update'])->name('update');
                 Route::delete('{class}', [ClassController::class, 'destroy'])->name('destroy');
             });
-            Route::get('{class}/students', [ClassController::class, 'students'])->name('students');
         });
 
-        // System Strings (i18n)
-        Route::prefix('strings')->name('strings.')->group(function () {
-            Route::get('locale/{locale}', [SystemStringController::class, 'byLocale'])->name('by-locale')
-                ->withoutMiddleware(['auth:sanctum']);
+        // System Strings
+        Route::prefix('strings')->name('strings.')->middleware('permission:manage_strings')->group(function () {
             Route::get('groups', [SystemStringController::class, 'groups'])->name('groups');
-
-            Route::middleware('permission:manage_strings')->group(function () {
-                Route::get('/', [SystemStringController::class, 'index'])->name('index');
-                Route::post('/', [SystemStringController::class, 'store'])->name('store');
-                Route::get('{string}', [SystemStringController::class, 'show'])->name('show');
-                Route::put('{string}', [SystemStringController::class, 'update'])->name('update');
-                Route::delete('{string}', [SystemStringController::class, 'destroy'])->name('destroy');
-                Route::post('bulk-update', [SystemStringController::class, 'bulkUpdate'])->name('bulk-update');
-                Route::get('export', [SystemStringController::class, 'export'])->name('export');
-                Route::post('import', [SystemStringController::class, 'import'])->name('import');
-            });
+            Route::get('/', [SystemStringController::class, 'index'])->name('index');
+            Route::post('/', [SystemStringController::class, 'store'])->name('store');
+            Route::get('{string}', [SystemStringController::class, 'show'])->name('show');
+            Route::patch('{string}', [SystemStringController::class, 'update'])->name('update');
+            Route::delete('{string}', [SystemStringController::class, 'destroy'])->name('destroy');
+            Route::post('bulk-update', [SystemStringController::class, 'bulkUpdate'])->name('bulk-update');
+            Route::get('export', [SystemStringController::class, 'export'])->name('export');
+            Route::post('import', [SystemStringController::class, 'import'])->name('import');
         });
 
         // Reading Texts
         Route::prefix('texts')->name('texts.')->group(function () {
             Route::get('/', [TextController::class, 'index'])->name('index');
             Route::get('{text}', [TextController::class, 'show'])->name('show');
+            Route::get('random', [TextController::class, 'random'])->name('random');
+
             Route::middleware('permission:manage_texts')->group(function () {
                 Route::post('/', [TextController::class, 'store'])->name('store');
-                Route::put('{text}', [TextController::class, 'update'])->name('update');
+                Route::patch('{text}', [TextController::class, 'update'])->name('update');
                 Route::delete('{text}', [TextController::class, 'destroy'])->name('destroy');
-                Route::post('bulk-delete', [TextController::class, 'bulkDelete'])->name('bulk-delete');
-                Route::get('export', [TextController::class, 'export'])->name('export');
-                Route::post('import', [TextController::class, 'import'])->name('import');
             });
         });
 
         // Word Lists
         Route::prefix('word-lists')->name('word-lists.')->group(function () {
             Route::get('/', [WordListController::class, 'index'])->name('index');
-            Route::get('{list}', [WordListController::class, 'show'])->name('show');
-            Route::get('{list}/words', [WordListController::class, 'words'])->name('words');
+            Route::get('{wordList}', [WordListController::class, 'show'])->name('show');
+            Route::get('{wordList}/words', [WordListController::class, 'words'])->name('words');
+
             Route::middleware('permission:manage_words')->group(function () {
                 Route::post('/', [WordListController::class, 'store'])->name('store');
-                Route::put('{list}', [WordListController::class, 'update'])->name('update');
-                Route::delete('{list}', [WordListController::class, 'destroy'])->name('destroy');
-                Route::post('{list}/words', [WordListController::class, 'addWord'])->name('add-word');
-                Route::delete('{list}/words/{word}', [WordListController::class, 'removeWord'])->name('remove-word');
-                Route::post('{list}/import', [WordListController::class, 'importWords'])->name('import');
+                Route::patch('{wordList}', [WordListController::class, 'update'])->name('update');
+                Route::delete('{wordList}', [WordListController::class, 'destroy'])->name('destroy');
+                Route::post('{wordList}/words', [WordListController::class, 'addWords'])->name('add-words');
+                Route::delete('{wordList}/words/{word}', [WordListController::class, 'removeWord'])->name('remove-word');
             });
         });
 
         // Game
         Route::prefix('game')->name('game.')->middleware('permission:play_game')->group(function () {
+            Route::get('config', [GameController::class, 'config'])->name('config');
+            Route::get('random-words', [GameController::class, 'randomWords'])->name('random-words');
+            Route::get('history', [GameController::class, 'history'])->name('history');
+            Route::get('results', [GameController::class, 'results'])->name('results');
             Route::post('start', [GameController::class, 'start'])->name('start')
                 ->middleware('throttle:game');
             Route::post('finish', [GameController::class, 'finish'])->name('finish');
-            Route::get('config', [GameController::class, 'config'])->name('config');
-            Route::get('history', [GameController::class, 'history'])->name('history');
-            Route::get('results', [GameController::class, 'results'])->name('results');
-            Route::get('random-words', [GameController::class, 'randomWords'])->name('random-words');
         });
 
         // Analytics
         Route::prefix('analytics')->name('analytics.')->group(function () {
             Route::get('me', [AnalyticsController::class, 'myStats'])->name('me');
+
             Route::middleware('permission:view_statistics')->group(function () {
                 Route::get('overview', [AnalyticsController::class, 'overview'])->name('overview');
                 Route::get('student/{user}', [AnalyticsController::class, 'studentStats'])->name('student');
@@ -193,8 +196,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
                 Route::get('top-students', [AnalyticsController::class, 'topStudents'])->name('top-students');
                 Route::get('school/{school}', [AnalyticsController::class, 'schoolStats'])->name('school');
                 Route::get('class/{class}', [AnalyticsController::class, 'classStats'])->name('class');
-            });
-            Route::middleware('permission:export_reports')->group(function () {
                 Route::get('export', [AnalyticsController::class, 'export'])->name('export');
             });
         });
@@ -202,10 +203,11 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // Achievements
         Route::prefix('achievements')->name('achievements.')->group(function () {
             Route::get('me', [AchievementController::class, 'myAchievements'])->name('me');
+            Route::get('/', [AchievementController::class, 'index'])->name('index');
+
             Route::middleware('permission:manage_achievements')->group(function () {
-                Route::get('/', [AchievementController::class, 'index'])->name('index');
                 Route::post('/', [AchievementController::class, 'store'])->name('store');
-                Route::put('{achievement}', [AchievementController::class, 'update'])->name('update');
+                Route::patch('{achievement}', [AchievementController::class, 'update'])->name('update');
                 Route::delete('{achievement}', [AchievementController::class, 'destroy'])->name('destroy');
             });
         });
@@ -213,20 +215,21 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         // Leaderboard
         Route::prefix('leaderboard')->name('leaderboard.')->group(function () {
             Route::get('global', [LeaderboardController::class, 'global'])->name('global');
-            Route::get('school/{school}', [LeaderboardController::class, 'school'])->name('school');
-            Route::get('class/{class}', [LeaderboardController::class, 'class'])->name('class');
+            Route::get('school', [LeaderboardController::class, 'school'])->name('school');
+            Route::get('class', [LeaderboardController::class, 'class'])->name('class');
         });
 
         // Competitions
         Route::prefix('competitions')->name('competitions.')->group(function () {
             Route::get('/', [CompetitionController::class, 'index'])->name('index');
+            Route::get('active', [CompetitionController::class, 'active'])->name('active');
             Route::get('{competition}', [CompetitionController::class, 'show'])->name('show');
             Route::post('{competition}/join', [CompetitionController::class, 'join'])->name('join');
-            Route::get('{competition}/results', [CompetitionController::class, 'results'])->name('results');
             Route::get('{competition}/leaderboard', [CompetitionController::class, 'leaderboard'])->name('leaderboard');
+
             Route::middleware('permission:manage_competitions')->group(function () {
                 Route::post('/', [CompetitionController::class, 'store'])->name('store');
-                Route::put('{competition}', [CompetitionController::class, 'update'])->name('update');
+                Route::patch('{competition}', [CompetitionController::class, 'update'])->name('update');
                 Route::delete('{competition}', [CompetitionController::class, 'destroy'])->name('destroy');
             });
         });
@@ -235,25 +238,29 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::prefix('notifications')->name('notifications.')->group(function () {
             Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::get('unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
-            Route::patch('{id}/read', [NotificationController::class, 'markRead'])->name('mark-read');
+            Route::post('{id}/read', [NotificationController::class, 'markRead'])->name('mark-read');
             Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
             Route::delete('{id}', [NotificationController::class, 'destroy'])->name('destroy');
-            Route::middleware('permission:manage_notifications')->group(function () {
-                Route::post('broadcast', [NotificationController::class, 'broadcast'])->name('broadcast');
-            });
+            Route::delete('/', [NotificationController::class, 'destroyAll'])->name('destroy-all');
+        });
+
+        // Parent
+        Route::prefix('parent')->name('parent.')->middleware('permission:view_children')->group(function () {
+            Route::get('children', [ParentController::class, 'children'])->name('children');
+            Route::get('children/{user}', [ParentController::class, 'childStats'])->name('child-stats');
         });
 
         // Audit Logs
         Route::prefix('audit-logs')->name('audit-logs.')->middleware('permission:manage_settings')->group(function () {
             Route::get('/', [AuditLogController::class, 'index'])->name('index');
-            Route::get('export', [AuditLogController::class, 'export'])->name('export');
+            Route::get('{id}', [AuditLogController::class, 'show'])->name('show');
         });
 
         // Settings
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [SettingsController::class, 'index'])->name('index');
             Route::middleware('permission:manage_settings')->group(function () {
-                Route::put('/', [SettingsController::class, 'update'])->name('update');
+                Route::patch('/', [SettingsController::class, 'update'])->name('update');
             });
         });
     });
