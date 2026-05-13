@@ -1,0 +1,41 @@
+# Normalize line endings to LF in the repository
+* text=auto eol=lf
+
+# Explicitly declare text files to always normalize
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.php text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.env text eol=lf
+*.env.example text eol=lf
+*.sh text eol=lf
+*.sql text eol=lf
+*.conf text eol=lf
+*.ini text eol=lf
+*.cnf text eol=lf
+
+# Shell scripts must be LF
+*.sh text eol=lf
+
+# Binary files — no text conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.svg binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

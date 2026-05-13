@@ -1,12 +1,12 @@
 'use client';
 
-import { Bell, Menu, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Menu, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { LocaleSwitcher } from '@/components/shared/locale-switcher';
+import { NotificationCenter } from '@/components/shared/notification-center';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
 import { useAuth } from '@/hooks/use-auth';
@@ -50,16 +50,7 @@ export function TopBar() {
         <LocaleSwitcher />
 
         {/* Notifications */}
-        <Link href={ROUTES.profile} className="relative">
-          <Button variant="ghost" size="icon" aria-label="Notifications">
-            <Bell size={20} />
-            {!!unreadCount && unreadCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </Button>
-        </Link>
+        <NotificationCenter unreadCount={unreadCount ?? 0} />
 
         {/* User menu */}
         <div className="relative group">

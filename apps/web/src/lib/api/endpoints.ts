@@ -20,13 +20,22 @@ export const API = {
     show: (id: number) => `/users/${id}`,
     update: (id: number) => `/users/${id}`,
     delete: (id: number) => `/users/${id}`,
-    avatar: (id: number) => `/users/${id}/avatar`,
+    me: '/users/me',
+    updateMe: '/users/me',
+    updatePassword: '/users/me/password',
+    avatar: '/users/me/avatar',
+    sessions: '/users/me/sessions',
+    revokeSession: (id: number) => `/users/me/sessions/${id}`,
     profile: '/users/profile',
-    updateProfile: '/users/profile',
-    changePassword: '/users/change-password',
     bulkDelete: '/users/bulk-delete',
     bulkActivate: '/users/bulk-activate',
     export: '/users/export',
+  },
+
+  // Parent
+  parent: {
+    children: '/parent/children',
+    childStats: (id: number) => `/parent/children/${id}`,
   },
 
   // Roles & Permissions
@@ -141,8 +150,10 @@ export const API = {
   },
   leaderboard: {
     global: '/leaderboard/global',
-    school: (id: number) => `/leaderboard/school/${id}`,
-    class: (id: number) => `/leaderboard/class/${id}`,
+    school: '/leaderboard/school',
+    class: '/leaderboard/class',
+    bySchool: (id: number) => `/leaderboard/school/${id}`,
+    byClass: (id: number) => `/leaderboard/class/${id}`,
   },
 
   // Competitions
