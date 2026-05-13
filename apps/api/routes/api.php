@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\ParentController;
+use App\Http\Controllers\Api\V1\PushSubscriptionController;
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
 
@@ -41,6 +42,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     // Public settings
     Route::get('settings/public', [SettingsController::class, 'public'])->name('settings.public');
+
+    // VAPID public key (unauthenticated — needed before login to subscribe)
+    Route::get('push/vapid-public-key', [PushSubscriptionController::class, 'vapidPublicKey'])->name('push.vapid-key');
 
     // ───── Authenticated Routes ─────
     Route::middleware('auth:sanctum')->group(function () {
@@ -245,6 +249,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
             Route::delete('{id}', [NotificationController::class, 'destroy'])->name('destroy');
             Route::delete('/', [NotificationController::class, 'destroyAll'])->name('destroy-all');
+        });
+
+        // Push subscriptions
+        Route::prefix('push')->name('push.')->group(function () {
+            Route::post('subscribe', [PushSubscriptionController::class, 'store'])->name('subscribe');
+            Route::delete('subscribe', [PushSubscriptionController::class, 'destroy'])->name('unsubscribe');
         });
 
         // Parent

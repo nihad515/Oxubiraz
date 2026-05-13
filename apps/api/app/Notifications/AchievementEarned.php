@@ -7,6 +7,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use NotificationChannels\WebPush\WebPushMessage;
+use NotificationChannels\WebPush\WebPushChannel;
 
 class AchievementEarned extends Notification implements ShouldQueue
 {
@@ -19,7 +21,7 @@ class AchievementEarned extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', WebPushChannel::class];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,6 +40,21 @@ class AchievementEarned extends Notification implements ShouldQueue
                 'xpReward' => $this->achievement->xp_reward,
                 'dashboardUrl' => $dashboardUrl,
             ]);
+    }
+
+    public function toWebPush(object $notifiable, mixed $notification): WebPushMessage
+    {
+        $name = $this->achievement->{"name_{$this->locale}"} ?? $this->achievement->name_az;
+        $description = $this->achievement->{"description_{$this->locale}"} ?? $this->achievement->description_az;
+        $frontendUrl = config('app.frontend_url', 'https://oxubiraz.az');
+
+        return (new WebPushMessage)
+            ->title("🏆 {$name}")
+            ->icon('/icons/icon-192x192.png')
+            ->body($description ?? '')
+            ->data(['url' => "{$frontendUrl}/student/achievements"])
+            ->badge('/icons/icon-96x96.png')
+            ->vibrate([100, 50, 100]);
     }
 
     public function toArray(object $notifiable): array

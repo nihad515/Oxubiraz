@@ -17,6 +17,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Enums\UserRole;
 use App\Enums\Locale;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 class User extends Authenticatable implements MustVerifyEmail, HasMedia
 {
@@ -27,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
     use SoftDeletes;
     use CausesActivity;
     use InteractsWithMedia;
+    use HasPushSubscriptions;
 
     protected $fillable = [
         'first_name',

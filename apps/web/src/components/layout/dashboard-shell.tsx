@@ -10,6 +10,7 @@ import { BottomNav } from './bottom-nav';
 import { useAuthStore } from '@/store/auth-store';
 import { useUiStore } from '@/store/ui-store';
 import { useRealtimeNotifications } from '@/hooks/use-realtime';
+import { PushPermissionPrompt } from '@/components/notifications/push-permission-prompt';
 import { cn } from '@/lib/utils/cn';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -68,6 +69,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="lg:hidden">
         <BottomNav />
       </div>
+
+      <PushPermissionPrompt />
     </div>
   );
 }

@@ -38,6 +38,13 @@ export const API = {
     childStats: (id: number) => `/parent/children/${id}`,
   },
 
+  // Push Notifications
+  push: {
+    vapidKey: '/push/vapid-public-key',
+    subscribe: '/push/subscribe',
+    unsubscribe: '/push/subscribe',
+  },
+
   // Roles & Permissions
   roles: {
     list: '/roles',

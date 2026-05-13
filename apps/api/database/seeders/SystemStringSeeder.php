@@ -382,6 +382,164 @@ class SystemStringSeeder extends Seeder
             );
         }
 
+        // ─── Localization audit additions ─────────────────────────────────
+        $strings = array_merge($strings, [
+            // Auth extras
+            ['key' => 'auth.change_password', 'group' => 'auth', 'az' => 'Şifrəni dəyiş', 'ru' => 'Изменить пароль', 'en' => 'Change password'],
+            ['key' => 'auth.check_email', 'group' => 'auth', 'az' => 'E-poçtunuzu yoxlayın', 'ru' => 'Проверьте почту', 'en' => 'Check your email'],
+            ['key' => 'auth.child_username_hint', 'group' => 'auth', 'az' => 'Uşağın istifadəçi adını daxil edin', 'ru' => 'Введите имя пользователя ребёнка', 'en' => 'Enter child username'],
+            ['key' => 'auth.child_username_placeholder', 'group' => 'auth', 'az' => 'uşaq_adi', 'ru' => 'имя_ребёнка', 'en' => 'child_username'],
+            ['key' => 'auth.current_password', 'group' => 'auth', 'az' => 'Mövcud şifrə', 'ru' => 'Текущий пароль', 'en' => 'Current password'],
+            ['key' => 'auth.language', 'group' => 'auth', 'az' => 'Dil', 'ru' => 'Язык', 'en' => 'Language'],
+            ['key' => 'auth.login_subtitle', 'group' => 'auth', 'az' => 'Oxu marafonuna davam et', 'ru' => 'Продолжи марафон чтения', 'en' => 'Continue your reading marathon'],
+            ['key' => 'auth.parent_username', 'group' => 'auth', 'az' => 'Valideyn istifadəçi adı', 'ru' => 'Имя пользователя родителя', 'en' => 'Parent username'],
+            ['key' => 'auth.password_confirmation', 'group' => 'auth', 'az' => 'Şifrəni təsdiqlə', 'ru' => 'Подтвердите пароль', 'en' => 'Confirm password'],
+            ['key' => 'auth.password_updated', 'group' => 'auth', 'az' => 'Şifrə yeniləndi', 'ru' => 'Пароль обновлён', 'en' => 'Password updated'],
+            ['key' => 'auth.register_subtitle', 'group' => 'auth', 'az' => 'Oxu yolçuluğuna başla', 'ru' => 'Начни путь к чтению', 'en' => 'Start your reading journey'],
+            ['key' => 'auth.reset_expiry', 'group' => 'auth', 'az' => 'Keçid müddəti bitib', 'ru' => 'Ссылка истекла', 'en' => 'Reset link expired'],
+            ['key' => 'auth.reset_password_desc', 'group' => 'auth', 'az' => 'Yeni şifrənizi daxil edin', 'ru' => 'Введите новый пароль', 'en' => 'Enter your new password'],
+            ['key' => 'auth.reset_sent', 'group' => 'auth', 'az' => 'Şifrə sıfırlama linki göndərildi', 'ru' => 'Ссылка для сброса отправлена', 'en' => 'Reset link sent'],
+
+            // Achievements
+            ['key' => 'achievements.earned', 'group' => 'achievements', 'az' => 'Qazanılıb', 'ru' => 'Получено', 'en' => 'Earned'],
+            ['key' => 'achievements.locked', 'group' => 'achievements', 'az' => 'Kilidli', 'ru' => 'Заблокировано', 'en' => 'Locked'],
+            ['key' => 'achievements.progress', 'group' => 'achievements', 'az' => 'İrəliləyiş', 'ru' => 'Прогресс', 'en' => 'Progress'],
+
+            // Admin extras
+            ['key' => 'admin.allowed_game_modes', 'group' => 'admin', 'az' => 'İcazəli oyun rejimləri', 'ru' => 'Разрешённые режимы игры', 'en' => 'Allowed game modes'],
+            ['key' => 'admin.auth_settings', 'group' => 'admin', 'az' => 'Autentifikasiya parametrləri', 'ru' => 'Настройки аутентификации', 'en' => 'Auth settings'],
+            ['key' => 'admin.default_locale', 'group' => 'admin', 'az' => 'Standart dil', 'ru' => 'Язык по умолчанию', 'en' => 'Default locale'],
+            ['key' => 'admin.file_settings', 'group' => 'admin', 'az' => 'Fayl parametrləri', 'ru' => 'Настройки файлов', 'en' => 'File settings'],
+            ['key' => 'admin.game_settings', 'group' => 'admin', 'az' => 'Oyun parametrləri', 'ru' => 'Настройки игры', 'en' => 'Game settings'],
+            ['key' => 'admin.maintenance_mode', 'group' => 'admin', 'az' => 'Texniki baxım rejimi', 'ru' => 'Режим обслуживания', 'en' => 'Maintenance mode'],
+            ['key' => 'admin.maintenance_mode_desc', 'group' => 'admin', 'az' => 'Platforma müvəqqəti bağlıdır', 'ru' => 'Платформа временно недоступна', 'en' => 'Platform is temporarily unavailable'],
+            ['key' => 'admin.max_file_size', 'group' => 'admin', 'az' => 'Maksimum fayl ölçüsü (MB)', 'ru' => 'Максимальный размер файла (МБ)', 'en' => 'Max file size (MB)'],
+            ['key' => 'admin.new_users_week', 'group' => 'admin', 'az' => 'Bu həftə yeni istifadəçilər', 'ru' => 'Новые пользователи за неделю', 'en' => 'New users this week'],
+            ['key' => 'admin.no_competitions', 'group' => 'admin', 'az' => 'Müsabiqə yoxdur', 'ru' => 'Нет соревнований', 'en' => 'No competitions'],
+            ['key' => 'admin.no_logs', 'group' => 'admin', 'az' => 'Jurnal yoxdur', 'ru' => 'Нет журналов', 'en' => 'No logs'],
+            ['key' => 'admin.no_texts', 'group' => 'admin', 'az' => 'Mətn yoxdur', 'ru' => 'Нет текстов', 'en' => 'No texts'],
+            ['key' => 'admin.platform', 'group' => 'admin', 'az' => 'Platforma', 'ru' => 'Платформа', 'en' => 'Platform'],
+            ['key' => 'admin.quick_actions', 'group' => 'admin', 'az' => 'Sürətli əməliyyatlar', 'ru' => 'Быстрые действия', 'en' => 'Quick actions'],
+            ['key' => 'admin.registration_open', 'group' => 'admin', 'az' => 'Qeydiyyat açıqdır', 'ru' => 'Регистрация открыта', 'en' => 'Registration open'],
+            ['key' => 'admin.registration_open_desc', 'group' => 'admin', 'az' => 'Yeni istifadəçilər qeydiyyatdan keçə bilər', 'ru' => 'Новые пользователи могут регистрироваться', 'en' => 'New users can register'],
+            ['key' => 'admin.select_role', 'group' => 'admin', 'az' => 'Rol seçin', 'ru' => 'Выберите роль', 'en' => 'Select role'],
+            ['key' => 'admin.sessions_today', 'group' => 'admin', 'az' => 'Bu günün sessiyaları', 'ru' => 'Сессии за сегодня', 'en' => 'Sessions today'],
+            ['key' => 'admin.sessions_week', 'group' => 'admin', 'az' => 'Bu həftənin sessiyaları', 'ru' => 'Сессии за неделю', 'en' => 'Sessions this week'],
+            ['key' => 'admin.text_content_placeholder', 'group' => 'admin', 'az' => 'Mətn məzmununu daxil edin...', 'ru' => 'Введите содержимое текста...', 'en' => 'Enter text content...'],
+            ['key' => 'admin.token_expiry', 'group' => 'admin', 'az' => 'Token müddəti (dəqiqə)', 'ru' => 'Срок токена (минуты)', 'en' => 'Token expiry (minutes)'],
+            ['key' => 'admin.token_expiry_remember', 'group' => 'admin', 'az' => '"Məni xatırla" token müddəti', 'ru' => 'Срок токена "Запомнить меня"', 'en' => '"Remember me" token expiry'],
+            ['key' => 'admin.total_students', 'group' => 'admin', 'az' => 'Ümumi tələbələr', 'ru' => 'Всего студентов', 'en' => 'Total students'],
+            ['key' => 'admin.total_teachers', 'group' => 'admin', 'az' => 'Ümumi müəllimlər', 'ru' => 'Всего учителей', 'en' => 'Total teachers'],
+
+            // Analytics extras
+            ['key' => 'analytics.history_desc', 'group' => 'analytics', 'az' => 'Keçmiş sessiya nəticələriniz', 'ru' => 'Ваши предыдущие результаты', 'en' => 'Your past session results'],
+            ['key' => 'analytics.no_sessions', 'group' => 'analytics', 'az' => 'Hələ sessiya yoxdur', 'ru' => 'Сессий пока нет', 'en' => 'No sessions yet'],
+            ['key' => 'analytics.recent_sessions', 'group' => 'analytics', 'az' => 'Son sessiyalar', 'ru' => 'Последние сессии', 'en' => 'Recent sessions'],
+
+            // Common extras
+            ['key' => 'common.age_group', 'group' => 'common', 'az' => 'Yaş qrupu', 'ru' => 'Возрастная группа', 'en' => 'Age group'],
+            ['key' => 'common.all_time', 'group' => 'common', 'az' => 'Bütün vaxt', 'ru' => 'За всё время', 'en' => 'All time'],
+            ['key' => 'common.clear', 'group' => 'common', 'az' => 'Təmizlə', 'ru' => 'Очистить', 'en' => 'Clear'],
+            ['key' => 'common.content', 'group' => 'common', 'az' => 'Məzmun', 'ru' => 'Содержимое', 'en' => 'Content'],
+            ['key' => 'common.date_from', 'group' => 'common', 'az' => 'Tarixdən', 'ru' => 'С даты', 'en' => 'Date from'],
+            ['key' => 'common.date_to', 'group' => 'common', 'az' => 'Tarixə qədər', 'ru' => 'По дату', 'en' => 'Date to'],
+            ['key' => 'common.deleted', 'group' => 'common', 'az' => 'Silindi', 'ru' => 'Удалено', 'en' => 'Deleted'],
+            ['key' => 'common.difficulty', 'group' => 'common', 'az' => 'Çətinlik', 'ru' => 'Сложность', 'en' => 'Difficulty'],
+            ['key' => 'common.ends_at', 'group' => 'common', 'az' => 'Bitmə tarixi', 'ru' => 'Дата окончания', 'en' => 'Ends at'],
+            ['key' => 'common.group', 'group' => 'common', 'az' => 'Qrup', 'ru' => 'Группа', 'en' => 'Group'],
+            ['key' => 'common.key', 'group' => 'common', 'az' => 'Açar', 'ru' => 'Ключ', 'en' => 'Key'],
+            ['key' => 'common.next', 'group' => 'common', 'az' => 'Növbəti', 'ru' => 'Далее', 'en' => 'Next'],
+            ['key' => 'common.not_now', 'group' => 'common', 'az' => 'İndi yox', 'ru' => 'Не сейчас', 'en' => 'Not now'],
+            ['key' => 'common.permissions_for', 'group' => 'common', 'az' => 'İcazələr:', 'ru' => 'Разрешения:', 'en' => 'Permissions for:'],
+            ['key' => 'common.prev', 'group' => 'common', 'az' => 'Əvvəlki', 'ru' => 'Назад', 'en' => 'Previous'],
+            ['key' => 'common.roles', 'group' => 'common', 'az' => 'Rollar', 'ru' => 'Роли', 'en' => 'Roles'],
+            ['key' => 'common.saved', 'group' => 'common', 'az' => 'Yadda saxlandı', 'ru' => 'Сохранено', 'en' => 'Saved'],
+            ['key' => 'common.starts_at', 'group' => 'common', 'az' => 'Başlama tarixi', 'ru' => 'Дата начала', 'en' => 'Starts at'],
+            ['key' => 'common.system', 'group' => 'common', 'az' => 'Sistem', 'ru' => 'Система', 'en' => 'System'],
+            ['key' => 'common.title', 'group' => 'common', 'az' => 'Başlıq', 'ru' => 'Заголовок', 'en' => 'Title'],
+            ['key' => 'common.toggle_active', 'group' => 'common', 'az' => 'Aktiv/Deaktiv et', 'ru' => 'Активировать/Деактивировать', 'en' => 'Toggle active'],
+            ['key' => 'common.total', 'group' => 'common', 'az' => 'Cəmi', 'ru' => 'Итого', 'en' => 'Total'],
+            ['key' => 'common.unlimited', 'group' => 'common', 'az' => 'Limitsiz', 'ru' => 'Без ограничений', 'en' => 'Unlimited'],
+            ['key' => 'common.updated', 'group' => 'common', 'az' => 'Yeniləndi', 'ru' => 'Обновлено', 'en' => 'Updated'],
+            ['key' => 'common.uploaded', 'group' => 'common', 'az' => 'Yükləndi', 'ru' => 'Загружено', 'en' => 'Uploaded'],
+            ['key' => 'common.username', 'group' => 'common', 'az' => 'İstifadəçi adı', 'ru' => 'Имя пользователя', 'en' => 'Username'],
+            ['key' => 'common.view_all', 'group' => 'common', 'az' => 'Hamısını gör', 'ru' => 'Посмотреть все', 'en' => 'View all'],
+            ['key' => 'common.you', 'group' => 'common', 'az' => 'Siz', 'ru' => 'Вы', 'en' => 'You'],
+
+            // Dashboard
+            ['key' => 'dashboard.welcome', 'group' => 'dashboard', 'az' => 'Xoş gəldiniz', 'ru' => 'Добро пожаловать', 'en' => 'Welcome'],
+            ['key' => 'dashboard.student_subtitle', 'group' => 'dashboard', 'az' => 'Bugün hansı rekord qıracaqsan?', 'ru' => 'Какой рекорд побьёшь сегодня?', 'en' => 'What record will you break today?'],
+            ['key' => 'dashboard.teacher_subtitle', 'group' => 'dashboard', 'az' => 'Tələbələrinizin irəliləyişi', 'ru' => 'Прогресс ваших студентов', 'en' => 'Your students\' progress'],
+            ['key' => 'dashboard.admin_subtitle', 'group' => 'dashboard', 'az' => 'Platformaya ümumi baxış', 'ru' => 'Обзор платформы', 'en' => 'Platform overview'],
+            ['key' => 'dashboard.parent_subtitle', 'group' => 'dashboard', 'az' => 'Uşaqlarınızın irəliləyişi', 'ru' => 'Прогресс ваших детей', 'en' => 'Your children\'s progress'],
+
+            // Errors
+            ['key' => 'errors.generic', 'group' => 'errors', 'az' => 'Xəta baş verdi', 'ru' => 'Произошла ошибка', 'en' => 'Something went wrong'],
+            ['key' => 'errors.invalid_password', 'group' => 'errors', 'az' => 'Şifrə yanlışdır', 'ru' => 'Неверный пароль', 'en' => 'Invalid password'],
+
+            // Game extras
+            ['key' => 'game.auto_select', 'group' => 'game', 'az' => 'Avtomatik seçim', 'ru' => 'Авто-выбор', 'en' => 'Auto select'],
+            ['key' => 'game.completed', 'group' => 'game', 'az' => 'Tamamlandı', 'ru' => 'Завершено', 'en' => 'Completed'],
+            ['key' => 'game.completion', 'group' => 'game', 'az' => 'Tamamlama', 'ru' => 'Завершение', 'en' => 'Completion'],
+            ['key' => 'game.mode_memory', 'group' => 'game', 'az' => 'Yaddaş', 'ru' => 'Память', 'en' => 'Memory'],
+            ['key' => 'game.mode_random', 'group' => 'game', 'az' => 'Təsadüfi sözlər', 'ru' => 'Случайные слова', 'en' => 'Random words'],
+            ['key' => 'game.mode_sentence', 'group' => 'game', 'az' => 'Cümlə oxuma', 'ru' => 'Чтение предложений', 'en' => 'Sentence reading'],
+            ['key' => 'game.mode_text', 'group' => 'game', 'az' => 'Mətn oxuma', 'ru' => 'Чтение текста', 'en' => 'Text reading'],
+            ['key' => 'game.no_permission', 'group' => 'game', 'az' => 'Oyun oynamaq icazəniz yoxdur', 'ru' => 'У вас нет разрешения играть', 'en' => 'You don\'t have permission to play'],
+            ['key' => 'game.paused', 'group' => 'game', 'az' => 'Fasilə', 'ru' => 'Пауза', 'en' => 'Paused'],
+            ['key' => 'game.resume', 'group' => 'game', 'az' => 'Davam et', 'ru' => 'Продолжить', 'en' => 'Resume'],
+            ['key' => 'game.seconds', 'group' => 'game', 'az' => 'saniyə', 'ru' => 'сек', 'en' => 'seconds'],
+            ['key' => 'game.word_list', 'group' => 'game', 'az' => 'Söz siyahısı', 'ru' => 'Список слов', 'en' => 'Word list'],
+            ['key' => 'game.words', 'group' => 'game', 'az' => 'Sözlər', 'ru' => 'Слова', 'en' => 'Words'],
+
+            // Gamification extras
+            ['key' => 'gamification.stats', 'group' => 'gamification', 'az' => 'Statistika', 'ru' => 'Статистика', 'en' => 'Stats'],
+            ['key' => 'gamification.streak_days', 'group' => 'gamification', 'az' => 'günlük seriya', 'ru' => 'дней подряд', 'en' => 'day streak'],
+
+            // Nav extras
+            ['key' => 'nav.classes', 'group' => 'nav', 'az' => 'Siniflər', 'ru' => 'Классы', 'en' => 'Classes'],
+            ['key' => 'nav.notifications', 'group' => 'nav', 'az' => 'Bildirişlər', 'ru' => 'Уведомления', 'en' => 'Notifications'],
+            ['key' => 'nav.progress', 'group' => 'nav', 'az' => 'İrəliləyiş', 'ru' => 'Прогресс', 'en' => 'Progress'],
+
+            // Notifications / Push
+            ['key' => 'notifications.mark_read', 'group' => 'notifications', 'az' => 'Oxunmuş kimi işarələ', 'ru' => 'Отметить прочитанным', 'en' => 'Mark as read'],
+            ['key' => 'notifications.push_blocked', 'group' => 'notifications', 'az' => 'Bildirişlər brauzer parametrlərindən bloklanıb', 'ru' => 'Уведомления заблокированы в браузере', 'en' => 'Notifications blocked in browser settings'],
+            ['key' => 'notifications.push_denied', 'group' => 'notifications', 'az' => 'Bildirişlərə icazə verilmədi', 'ru' => 'Уведомления отклонены', 'en' => 'Notifications blocked. Enable in browser settings.'],
+            ['key' => 'notifications.push_disable', 'group' => 'notifications', 'az' => 'Bildirişləri söndür', 'ru' => 'Отключить уведомления', 'en' => 'Disable notifications'],
+            ['key' => 'notifications.push_enable', 'group' => 'notifications', 'az' => 'Bildirişləri aktivləşdir', 'ru' => 'Включить уведомления', 'en' => 'Enable notifications'],
+            ['key' => 'notifications.push_enabled', 'group' => 'notifications', 'az' => 'Push bildirişlər aktivdir!', 'ru' => 'Push-уведомления включены!', 'en' => 'Push notifications enabled!'],
+            ['key' => 'notifications.push_prompt_body', 'group' => 'notifications', 'az' => 'Nailiyyətlər, səviyyə artımları və seriyalar haqqında bildiriş alın.', 'ru' => 'Получайте уведомления о достижениях, повышениях уровня и сериях.', 'en' => 'Get notified about achievements, level-ups, and streaks.'],
+            ['key' => 'notifications.push_prompt_title', 'group' => 'notifications', 'az' => 'İrəliləyişinizdən xəbərdar olun!', 'ru' => 'Следите за своим прогрессом!', 'en' => 'Stay on top of your progress!'],
+            ['key' => 'notifications.push_unsupported', 'group' => 'notifications', 'az' => 'Bu brauzer push bildirişlərini dəstəkləmir', 'ru' => 'Этот браузер не поддерживает push-уведомления', 'en' => 'Push notifications not supported in this browser'],
+
+            // Parent extras
+            ['key' => 'parent.link_child_hint', 'group' => 'parent', 'az' => 'Uşağı qoşmaq üçün onun istifadəçi adını daxil edin', 'ru' => 'Введите имя пользователя ребёнка для привязки', 'en' => 'Enter child username to link them to your account'],
+
+            // Profile extras
+            ['key' => 'profile.desc', 'group' => 'profile', 'az' => 'Profil məlumatlarınızı idarə edin', 'ru' => 'Управляйте данными профиля', 'en' => 'Manage your profile information'],
+            ['key' => 'profile.first_name', 'group' => 'profile', 'az' => 'Ad', 'ru' => 'Имя', 'en' => 'First name'],
+            ['key' => 'profile.last_name', 'group' => 'profile', 'az' => 'Soyad', 'ru' => 'Фамилия', 'en' => 'Last name'],
+
+            // School / Class
+            ['key' => 'school.name', 'group' => 'schools', 'az' => 'Məktəb adı', 'ru' => 'Название школы', 'en' => 'School name'],
+            ['key' => 'school.select', 'group' => 'schools', 'az' => 'Məktəb seçin', 'ru' => 'Выберите школу', 'en' => 'Select school'],
+            ['key' => 'class.name', 'group' => 'common', 'az' => 'Sinif adı', 'ru' => 'Название класса', 'en' => 'Class name'],
+            ['key' => 'class.select', 'group' => 'common', 'az' => 'Sinif seçin', 'ru' => 'Выберите класс', 'en' => 'Select class'],
+
+            // Settings
+            ['key' => 'settings.language', 'group' => 'settings', 'az' => 'Dil', 'ru' => 'Язык', 'en' => 'Language'],
+
+            // Teacher extras
+            ['key' => 'teacher.sessions_today', 'group' => 'teacher', 'az' => 'Bu günün sessiyaları', 'ru' => 'Сессии за сегодня', 'en' => 'Sessions today'],
+            ['key' => 'teacher.sessions_week', 'group' => 'teacher', 'az' => 'Bu həftənin sessiyaları', 'ru' => 'Сессии за неделю', 'en' => 'Sessions this week'],
+            ['key' => 'teacher.view_progress', 'group' => 'teacher', 'az' => 'İrəliləyişi gör', 'ru' => 'Посмотреть прогресс', 'en' => 'View progress'],
+
+            // Words extras
+            ['key' => 'words.export_csv', 'group' => 'words', 'az' => 'CSV ixrac et', 'ru' => 'Экспортировать CSV', 'en' => 'Export CSV'],
+            ['key' => 'words.import_csv', 'group' => 'words', 'az' => 'CSV idxal et', 'ru' => 'Импортировать CSV', 'en' => 'Import CSV'],
+            ['key' => 'words.import_success', 'group' => 'words', 'az' => '{imported} söz idxal edildi, {skipped} atlandı', 'ru' => '{imported} слов импортировано, {skipped} пропущено', 'en' => '{imported} words imported, {skipped} skipped'],
+        ]);
+
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');
     }
 }

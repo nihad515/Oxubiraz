@@ -3,14 +3,22 @@
   "short_name": "Oxubiraz",
   "description": "Multilingual AI-powered reading speed education platform for children",
   "start_url": "/",
+  "id": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#7c3aed",
   "orientation": "portrait-primary",
   "lang": "az",
+  "dir": "ltr",
   "categories": ["education", "kids"],
   "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -45,7 +53,13 @@
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icons/icon-384x384.png",
@@ -57,21 +71,29 @@
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
     {
-      "name": "Play Game",
-      "short_name": "Play",
-      "url": "/student/play",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "name": "Oyun oyna",
+      "short_name": "Oyna",
+      "description": "Yeni oxu sessiyasına başla",
+      "url": "/student/game",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     },
     {
-      "name": "Leaderboard",
-      "short_name": "Leaderboard",
+      "name": "Liderler cədvəli",
+      "short_name": "Liderlik",
+      "description": "Ən yaxşı oxucuları gör",
       "url": "/student/leaderboard",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
     }
   ],
   "screenshots": [
@@ -80,14 +102,14 @@
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Game screen on mobile"
+      "label": "Oyun ekranı mobil cihazda"
     },
     {
       "src": "/images/screenshot-desktop.png",
       "sizes": "1280x800",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Dashboard on desktop"
+      "label": "İdarə paneli masaüstündə"
     }
   ],
   "related_applications": [],
