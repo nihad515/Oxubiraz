@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, TrendingUp, Users, Globe } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Globe, Download } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useString } from '@/hooks/use-string';
+import { toast } from 'sonner';
 import apiClient from '@/lib/api/client';
 import { API } from '@/lib/api/endpoints';
 import { WpmTrendChart } from '@/components/analytics/wpm-trend-chart';
@@ -21,6 +22,32 @@ type Period = 'week' | 'month' | 'year';
 export default function AdminAnalyticsPage() {
   const { t } = useString();
   const [period, setPeriod] = useState<Period>('month');
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async (format: 'xlsx' | 'csv') => {
+    setExporting(true);
+    try {
+      const mimeType = format === 'csv'
+        ? 'text/csv'
+        : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      const response = await apiClient.axios.get(
+        `${API.analytics.export}?format=${format}`,
+        { responseType: 'blob' },
+      );
+      const url = URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `analytics_${new Date().toISOString().slice(0, 10)}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t('common.error', {}, 'Export failed'));
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const { data: overview, isLoading: loadingOverview } = useQuery({
     queryKey: ['analytics', 'admin-overview'],
@@ -63,7 +90,7 @@ export default function AdminAnalyticsPage() {
           </h1>
           <p className="text-muted-foreground">{t('admin.analytics_desc', {}, 'Platform-wide usage statistics')}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {periods.map((p) => (
             <Button
               key={p}
@@ -74,6 +101,24 @@ export default function AdminAnalyticsPage() {
               {periodLabels[p]}
             </Button>
           ))}
+          <Button
+            variant="outline"
+            size="sm"
+            loading={exporting}
+            onClick={() => handleExport('xlsx')}
+          >
+            <Download size={14} />
+            XLSX
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            loading={exporting}
+            onClick={() => handleExport('csv')}
+          >
+            <Download size={14} />
+            CSV
+          </Button>
         </div>
       </div>
 

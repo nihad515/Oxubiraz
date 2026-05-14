@@ -34,6 +34,12 @@ class AchievementController extends Controller
         return response()->json(['status' => 'success', 'data' => $achievements]);
     }
 
+    public function adminIndex(): JsonResponse
+    {
+        $achievements = Achievement::orderBy('xp_reward')->get();
+        return response()->json(['status' => 'success', 'data' => $achievements]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

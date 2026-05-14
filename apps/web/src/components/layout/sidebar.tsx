@@ -41,6 +41,7 @@ function useNavItems(): NavItem[] {
       { href: ROUTES.admin.texts, icon: <FileText size={20} />, labelKey: 'nav.texts', permission: PERMISSIONS.MANAGE_TEXTS },
       { href: ROUTES.admin.words, icon: <BookOpen size={20} />, labelKey: 'nav.words', permission: PERMISSIONS.MANAGE_WORDS },
       { href: ROUTES.admin.competitions, icon: <Trophy size={20} />, labelKey: 'nav.competitions', permission: PERMISSIONS.MANAGE_COMPETITIONS },
+      { href: ROUTES.admin.achievements, icon: <Star size={20} />, labelKey: 'nav.achievements', permission: PERMISSIONS.MANAGE_ACHIEVEMENTS },
       { href: ROUTES.admin.analytics, icon: <BarChart3 size={20} />, labelKey: 'nav.analytics', permission: PERMISSIONS.VIEW_STATISTICS },
       { href: ROUTES.admin.notifications, icon: <Bell size={20} />, labelKey: 'nav.notifications' },
       { href: ROUTES.admin.settings, icon: <Settings size={20} />, labelKey: 'nav.settings', permission: PERMISSIONS.MANAGE_SETTINGS },

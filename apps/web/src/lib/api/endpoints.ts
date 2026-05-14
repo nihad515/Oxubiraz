@@ -154,6 +154,7 @@ export const API = {
   // Gamification
   achievements: {
     list: '/achievements',
+    adminList: '/achievements/admin',
     create: '/achievements',
     update: (id: number) => `/achievements/${id}`,
     delete: (id: number) => `/achievements/${id}`,

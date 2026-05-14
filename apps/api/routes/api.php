@@ -221,6 +221,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('/', [AchievementController::class, 'index'])->name('index');
 
             Route::middleware('permission:manage_achievements')->group(function () {
+                Route::get('admin', [AchievementController::class, 'adminIndex'])->name('admin');
                 Route::post('/', [AchievementController::class, 'store'])->name('store');
                 Route::patch('{achievement}', [AchievementController::class, 'update'])->name('update');
                 Route::delete('{achievement}', [AchievementController::class, 'destroy'])->name('destroy');

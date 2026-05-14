@@ -629,6 +629,18 @@ class SystemStringSeeder extends Seeder
             // Common units
             ['key' => 'common.days', 'group' => 'common', 'az' => 'gün', 'ru' => 'дн.', 'en' => 'days'],
             ['key' => 'common.minutes', 'group' => 'common', 'az' => 'dəq', 'ru' => 'мин', 'en' => 'min'],
+
+            // Admin — achievements CRUD
+            ['key' => 'admin.achievements_desc', 'group' => 'admin', 'az' => 'Uğur nişanlarını yaradın və idarə edin', 'ru' => 'Создайте и управляйте значками достижений', 'en' => 'Create and manage achievement badges'],
+            ['key' => 'admin.no_achievements', 'group' => 'admin', 'az' => 'Hələ uğur yoxdur. Birinci uğuru yaradın!', 'ru' => 'Достижений пока нет. Создайте первое!', 'en' => 'No achievements yet. Create the first one!'],
+            ['key' => 'achievements.icon', 'group' => 'achievements', 'az' => 'İkon', 'ru' => 'Иконка', 'en' => 'Icon'],
+            ['key' => 'achievements.xp_reward', 'group' => 'achievements', 'az' => 'XP Mükafatı', 'ru' => 'XP-награда', 'en' => 'XP Reward'],
+            ['key' => 'achievements.condition_type', 'group' => 'achievements', 'az' => 'Şərt növü', 'ru' => 'Тип условия', 'en' => 'Condition'],
+            ['key' => 'achievements.condition_value', 'group' => 'achievements', 'az' => 'Şərt dəyəri', 'ru' => 'Значение условия', 'en' => 'Value'],
+            ['key' => 'common.inactive', 'group' => 'common', 'az' => 'Deaktiv', 'ru' => 'Неактивен', 'en' => 'Inactive'],
+
+            // Admin analytics export
+            ['key' => 'admin.export_sessions', 'group' => 'admin', 'az' => 'Sessiyaları ixrac et', 'ru' => 'Экспорт сессий', 'en' => 'Export Sessions'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');
