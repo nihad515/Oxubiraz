@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Search, Shield, Trash2, ToggleLeft, Eye } from 'lucide-react';
+import { Users, Search, Shield, Trash2, ToggleLeft, Eye, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +30,32 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set('filter[search]', search);
+      if (roleFilter) params.set('filter[role]', roleFilter);
+      const response = await apiClient.axios.get(
+        `${API.users.export}?${params}`,
+        { responseType: 'blob' },
+      );
+      const url = URL.createObjectURL(new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `users_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'users', page, search, roleFilter],
@@ -69,6 +95,10 @@ export default function AdminUsersPage() {
           </h1>
           <p className="text-muted-foreground">{t('admin.users_desc', {}, 'Manage all platform users')}</p>
         </div>
+        <Button variant="outline" size="sm" loading={exporting} onClick={handleExport}>
+          <Download size={16} />
+          {t('common.export', {}, 'Export XLSX')}
+        </Button>
       </div>
 
       {/* Filters */}

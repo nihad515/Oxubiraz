@@ -1,6 +1,6 @@
 .PHONY: dev stop build push test test-api test-web test-e2e lint \
         shell-api shell-web shell-db logs logs-api logs-web logs-horizon \
-        migrate seed fresh tinker horizon-publish queue-clear \
+        migrate seed fresh tinker horizon-publish queue-clear vapid \
         health install
 
 COMPOSE_DEV  := docker compose -f docker-compose.dev.yml
@@ -98,6 +98,11 @@ horizon-publish:
 
 queue-clear:
 	$(API) php artisan horizon:clear
+
+# Generate VAPID keys for Web Push notifications.
+# Run once on first deploy; copy output to .env as VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY.
+vapid:
+	$(API) php artisan webpush:vapid
 
 health:
 	curl -s http://localhost:8000/api/health | python3 -m json.tool 2>/dev/null || \

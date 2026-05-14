@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 
 test.describe('Admin Panel', () => {
   test('admin dashboard loads', async ({ adminPage: page }) => {
-    await page.goto('/admin/dashboard');
+    await page.goto('/admin');
     await expect(page).not.toHaveURL(/\/login/);
     await expect(page.getByRole('main')).toBeVisible({ timeout: 5_000 });
   });
@@ -58,7 +58,7 @@ test.describe('Admin Panel', () => {
   });
 
   test('audit log page loads', async ({ adminPage: page }) => {
-    await page.goto('/admin/audit');
+    await page.goto('/admin/audit-logs');
     await expect(page.getByRole('main')).toBeVisible({ timeout: 5_000 });
   });
 
