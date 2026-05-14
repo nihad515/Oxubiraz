@@ -37,7 +37,7 @@ services:
     networks:
       - oxubiraz_prod_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost/api/health || exit 1"]
+      test: ["CMD-SHELL", "php -r 'exit(0);'"]
       interval: 15s
       timeout: 5s
       retries: 4

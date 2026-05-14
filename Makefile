@@ -1,7 +1,9 @@
 .PHONY: dev stop build push test test-api test-web test-e2e lint \
         shell-api shell-web shell-db logs logs-api logs-web logs-horizon \
         migrate seed fresh tinker horizon-publish queue-clear vapid \
-        health install
+        health install \
+        prod-up prod-down prod-logs prod-logs-api prod-logs-horizon \
+        prod-shell-api prod-migrate prod-optimize prod-backup rollback
 
 COMPOSE_DEV  := docker compose -f docker-compose.dev.yml
 COMPOSE_PROD := docker compose -f docker-compose.prod.yml
@@ -107,3 +109,45 @@ vapid:
 health:
 	curl -s http://localhost:8000/api/health | python3 -m json.tool 2>/dev/null || \
 	  curl -s http://localhost:8000/api/health
+
+# ─── Production (run on the server at /opt/oxubiraz) ──────────────────────────
+
+PROD_DIR  ?= /opt/oxubiraz
+PROD_COMPOSE := $(COMPOSE_PROD) --env-file $(PROD_DIR)/.env.prod
+
+prod-up:
+	$(PROD_COMPOSE) up -d
+
+prod-down:
+	$(PROD_COMPOSE) down
+
+prod-logs:
+	$(PROD_COMPOSE) logs -f --tail=100
+
+prod-logs-api:
+	$(PROD_COMPOSE) logs -f --tail=100 api
+
+prod-logs-horizon:
+	$(PROD_COMPOSE) logs -f --tail=100 horizon
+
+prod-shell-api:
+	$(PROD_COMPOSE) exec api sh
+
+prod-migrate:
+	$(PROD_COMPOSE) exec -T api php artisan migrate --force
+
+prod-optimize:
+	$(PROD_COMPOSE) exec -T api php artisan optimize
+
+# Dump the production database to ./backups/
+prod-backup:
+	@mkdir -p backups
+	$(PROD_COMPOSE) exec -T mysql \
+	  mysqldump -u root -p$${MYSQL_ROOT_PASSWORD} oxubiraz \
+	  | gzip > backups/oxubiraz_$(shell date +%Y%m%d_%H%M%S).sql.gz
+	@echo "Backup saved to backups/"
+
+# rollback SHA=<git-sha>
+rollback:
+	@[ -n "$(SHA)" ] || (echo "Usage: make rollback SHA=<git-sha>"; exit 1)
+	bash scripts/rollback.sh $(SHA)

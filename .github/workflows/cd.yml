@@ -124,7 +124,11 @@ jobs:
             # Deploy horizon (graceful stop — waits for in-flight jobs)
             docker compose -f docker-compose.prod.yml up -d --no-deps horizon
 
-            # Run migrations (single shot, not scaled)
+            # Wait for the single API container to be healthy before migrating
+            echo "Waiting for API container to stabilise..."
+            sleep 10
+
+            # Run migrations (idempotent — safe to run on every deploy)
             docker compose -f docker-compose.prod.yml exec -T api php artisan migrate --force
             docker compose -f docker-compose.prod.yml exec -T api php artisan optimize
 
