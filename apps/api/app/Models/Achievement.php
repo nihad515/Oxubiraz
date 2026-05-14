@@ -58,6 +58,11 @@ class Achievement extends Model
         return $this->{"description_{$locale}"} ?? $this->description_az;
     }
 
+    public function scopeActive($query): void
+    {
+        $query->where('is_active', true);
+    }
+
     public function checkCondition(User $user): bool
     {
         return match ($this->condition_type) {
