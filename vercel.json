@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "./node_modules/.bin/turbo run build --filter=@oxubiraz/web",
+  "buildCommand": "npm run build:web",
   "installCommand": "npm install --legacy-peer-deps",
   "outputDirectory": "apps/web/.next"
 }
