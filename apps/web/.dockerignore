@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Build outputs (rebuilt inside Docker)
+.next
+out
+dist
+build
+
+# Dependencies (reinstalled inside Docker)
+node_modules
+npm-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Dev configs
+docker-compose*
+compose*
+Dockerfile*
+*.dockerfile
+
+# Testing
+coverage
+playwright-report
+test-results
+.nyc_output
+
+# Local IDE / OS
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# CI / CD
+.github
+
+# Turbo cache
+.turbo

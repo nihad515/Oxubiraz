@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Dev dependencies & tooling
+node_modules
+npm-debug.log
+
+# Testing
+tests
+vendor/bin
+.phpunit.cache
+phpunit.xml
+coverage
+
+# Development configs
+.env
+.env.*
+!.env.example
+docker-compose*
+compose*
+Dockerfile*
+*.dockerfile
+
+# Local IDE / OS
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Runtime directories (generated at startup)
+storage/app/public/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+storage/logs/*
+!storage/app/.gitkeep
+!storage/logs/.gitkeep
+
+# Bootstrap cache (generated at startup)
+bootstrap/cache/*.php
+!bootstrap/cache/.gitkeep
+
+# CI / CD
+.github
