@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Pause, Play, Clock, Sparkles } from 'lucide-react';
 
@@ -42,6 +42,19 @@ export function GameBoard() {
     },
     [clickWord],
   );
+
+  // Keyboard: Space or Enter advances to next word
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space' && e.code !== 'Enter') return;
+      if (e.target instanceof HTMLButtonElement || e.target instanceof HTMLInputElement) return;
+      e.preventDefault();
+      if (status !== 'playing') return;
+      handleWordClick(lastClickedIndex + 1);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [status, lastClickedIndex, handleWordClick]);
 
   if (!session) return null;
 
@@ -108,6 +121,9 @@ export function GameBoard() {
                 {targetedCount} {t('game.ai_targeted', {}, 'targeted')}
               </span>
             )}
+            <span className="hidden sm:inline opacity-60">
+              {t('game.keyboard_hint', {}, 'Space/Enter for next word')}
+            </span>
             <span>{Math.round((clickedCount / session.words.length) * 100)}%</span>
           </div>
         </div>

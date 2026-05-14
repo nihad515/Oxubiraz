@@ -641,6 +641,16 @@ class SystemStringSeeder extends Seeder
 
             // Admin analytics export
             ['key' => 'admin.export_sessions', 'group' => 'admin', 'az' => 'Sessiyaları ixrac et', 'ru' => 'Экспорт сессий', 'en' => 'Export Sessions'],
+
+            // Admin schools CRUD
+            ['key' => 'admin.no_schools', 'group' => 'admin', 'az' => 'Hələ məktəb yoxdur.', 'ru' => 'Школ пока нет.', 'en' => 'No schools yet.'],
+            ['key' => 'common.city', 'group' => 'common', 'az' => 'Şəhər', 'ru' => 'Город', 'en' => 'City'],
+            ['key' => 'common.address', 'group' => 'common', 'az' => 'Ünvan', 'ru' => 'Адрес', 'en' => 'Address'],
+            ['key' => 'common.phone', 'group' => 'common', 'az' => 'Telefon', 'ru' => 'Телефон', 'en' => 'Phone'],
+            ['key' => 'common.optional', 'group' => 'common', 'az' => 'İstəyə görə', 'ru' => 'Необязательно', 'en' => 'Optional'],
+
+            // Game keyboard hint
+            ['key' => 'game.keyboard_hint', 'group' => 'game', 'az' => 'Növbəti söz üçün Space/Enter basın', 'ru' => 'Нажмите Space/Enter для следующего слова', 'en' => 'Press Space/Enter for next word'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');
