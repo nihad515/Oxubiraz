@@ -8,13 +8,13 @@ export interface TestUser {
 
 const USERS: Record<string, TestUser> = {
   student: {
-    email: process.env.E2E_STUDENT_EMAIL ?? 'student@test.com',
-    password: process.env.E2E_STUDENT_PASSWORD ?? 'password',
+    email: process.env.E2E_STUDENT_EMAIL ?? 'student@oxubiraz.az',
+    password: process.env.E2E_STUDENT_PASSWORD ?? 'Student@123456',
     role: 'student',
   },
   admin: {
-    email: process.env.E2E_ADMIN_EMAIL ?? 'admin@test.com',
-    password: process.env.E2E_ADMIN_PASSWORD ?? 'password',
+    email: process.env.E2E_ADMIN_EMAIL ?? 'admin@oxubiraz.az',
+    password: process.env.E2E_ADMIN_PASSWORD ?? 'Admin@123456',
     role: 'admin',
   },
 };

@@ -15,6 +15,34 @@ class UserSeeder extends Seeder
         $school = School::first();
         $class = SchoolClass::first();
 
+        // Super admin
+        $superAdmin = User::updateOrCreate(
+            ['username' => 'superadmin'],
+            [
+                'first_name' => 'Super',
+                'last_name'  => 'Admin',
+                'email'      => 'superadmin@oxubiraz.az',
+                'password'   => Hash::make('SuperAdmin@123456'),
+                'locale'     => 'az',
+                'is_active'  => true,
+            ]
+        );
+        $superAdmin->assignRole('super_admin');
+
+        // Admin (also used as E2E admin fixture)
+        $admin = User::updateOrCreate(
+            ['username' => 'admin'],
+            [
+                'first_name' => 'Platform',
+                'last_name'  => 'Admin',
+                'email'      => 'admin@oxubiraz.az',
+                'password'   => Hash::make('Admin@123456'),
+                'locale'     => 'az',
+                'is_active'  => true,
+            ]
+        );
+        $admin->assignRole('admin');
+
         // Demo teacher
         $teacher = User::updateOrCreate(
             ['username' => 'teacher'],
