@@ -12,6 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 class GameService
 {
+    private array $lastTargetedWords = [];
+
     public function __construct(
         private readonly AchievementService $achievementService,
         private readonly StreakService $streakService,
@@ -19,6 +21,7 @@ class GameService
 
     public function start(array $config, User $user): array
     {
+        $this->lastTargetedWords = [];
         $words = $this->resolveWords($config, $user);
 
         if (empty($words)) {
@@ -27,10 +30,37 @@ class GameService
             ]);
         }
 
-        return [
+        $result = [
             'session_id' => Str::uuid()->toString(),
             'words' => $words,
             'config' => $config,
+        ];
+
+        if (GameMode::from($config['mode']) === GameMode::Ai) {
+            $result['targeted_words'] = $this->lastTargetedWords;
+        }
+
+        return $result;
+    }
+
+    public function aiProfile(User $user): array
+    {
+        $recentSessions = GameSession::where('user_id', $user->id)
+            ->whereNotNull('weakest_words')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        $weakWordCounts = $recentSessions
+            ->flatMap(fn($s) => $s->weakest_words ?? [])
+            ->countBy()
+            ->sortDesc();
+
+        return [
+            'weak_words_available' => $weakWordCounts->count(),
+            'recent_sessions'      => GameSession::where('user_id', $user->id)->count(),
+            'is_personalized'      => $weakWordCounts->count() >= 5,
+            'top_weak_words'       => $weakWordCounts->keys()->take(8)->values()->toArray(),
         ];
     }
 
@@ -130,7 +160,8 @@ class GameService
 
     private function getAiWords(array $config, User $user, string $language): array
     {
-        // Get user's weakest words
+        $count = $config['word_count'] ?? 50;
+
         $weakWords = GameSession::where('user_id', $user->id)
             ->whereNotNull('weakest_words')
             ->orderBy('created_at', 'desc')
@@ -140,16 +171,21 @@ class GameService
             ->countBy()
             ->sortDesc()
             ->keys()
-            ->take(20)
+            ->take((int) ($count * 0.6)) // up to 60 % targeted
             ->toArray();
 
-        if (count($weakWords) < 10) {
-            // Supplement with random words
-            $randomWords = $this->getRandomWords($config, $language, 50 - count($weakWords));
-            $weakWords = array_merge($weakWords, $randomWords);
+        $this->lastTargetedWords = $weakWords;
+
+        $needed = $count - count($weakWords);
+        if ($needed > 0) {
+            $filler = $this->getRandomWords($config, $language, $needed + 10);
+            // Remove duplicates with targeted set
+            $targetedSet = array_flip($weakWords);
+            $filler = array_values(array_filter($filler, fn($w) => !isset($targetedSet[$w])));
+            $weakWords = array_merge($weakWords, array_slice($filler, 0, $needed));
         }
 
         shuffle($weakWords);
-        return array_slice($weakWords, 0, $config['word_count'] ?? 50);
+        return array_slice($weakWords, 0, $count);
     }
 }

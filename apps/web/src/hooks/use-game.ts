@@ -34,12 +34,13 @@ export function useGame() {
 
   const startMutation = useMutation({
     mutationFn: (config: GameConfig) =>
-      apiClient.post<ApiResponse<{ words: string[]; session_id: string }>>(
+      apiClient.post<ApiResponse<{ words: string[]; session_id: string; targeted_words?: string[] }>>(
         API.game.start,
         config,
       ),
     onSuccess: (data, config) => {
-      initSession(config, data.data.words);
+      const targetedSet = new Set<string>(data.data.targeted_words ?? []);
+      initSession(config, data.data.words, targetedSet);
     },
     onError: () => {
       toast.error(t('game.start_failed'));

@@ -129,6 +129,7 @@ export const API = {
     history: '/game/history',
     config: '/game/config',
     randomWords: '/game/random-words',
+    aiProfile: '/game/ai-profile',
   },
 
   // Analytics

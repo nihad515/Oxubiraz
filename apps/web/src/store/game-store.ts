@@ -11,7 +11,7 @@ interface GameState {
 }
 
 interface GameActions {
-  initSession: (config: GameConfig, words: string[]) => void;
+  initSession: (config: GameConfig, words: string[], targetedWords?: Set<string>) => void;
   startGame: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
@@ -23,12 +23,13 @@ interface GameActions {
 
 type GameStore = GameState & GameActions;
 
-const buildWords = (words: string[]): GameWord[] =>
+const buildWords = (words: string[], targetedWords: Set<string> = new Set()): GameWord[] =>
   words.map((text, index) => ({
     id: `word-${index}`,
     text,
     index,
     clicked: false,
+    is_targeted: targetedWords.has(text),
   }));
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -38,8 +39,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   clickedCount: 0,
   lastClickedIndex: -1,
 
-  initSession: (config, words) => {
-    const gameWords = buildWords(words);
+  initSession: (config, words, targetedWords) => {
+    const gameWords = buildWords(words, targetedWords);
     set({
       session: {
         id: crypto.randomUUID(),

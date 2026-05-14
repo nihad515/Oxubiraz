@@ -2,19 +2,20 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Zap, BookOpen, BrainCircuit, AlignLeft, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, BookOpen, BrainCircuit, AlignLeft, Sparkles, Brain, TrendingUp } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGame } from '@/hooks/use-game';
 import { useString } from '@/hooks/use-string';
 import { useStringStore } from '@/store/string-store';
 import { cn } from '@/lib/utils/cn';
 import apiClient from '@/lib/api/client';
 import { API } from '@/lib/api/endpoints';
-import type { GameMode, GameDuration, GameConfig as IGameConfig } from '@/types/game';
+import type { GameMode, GameDuration, GameConfig as IGameConfig, AiProfile } from '@/types/game';
 import type { ApiResponse } from '@/types/api';
 import type { WordList } from '@/types/content';
 
@@ -43,6 +44,14 @@ export function GameConfig() {
       params: { language: locale, per_page: 50 },
     }),
     select: (d) => d.data,
+  });
+
+  const { data: aiProfile, isLoading: aiLoading } = useQuery({
+    queryKey: ['game-ai-profile'],
+    queryFn: () => apiClient.get<ApiResponse<AiProfile>>(API.game.aiProfile),
+    select: (d) => d.data,
+    enabled: selectedMode === 'ai',
+    staleTime: 60_000,
   });
 
   const handleStart = () => {
@@ -155,6 +164,78 @@ export function GameConfig() {
           </CardContent>
         </Card>
       )}
+
+      {/* AI mode info panel */}
+      <AnimatePresence>
+        {selectedMode === 'ai' && (
+          <motion.div
+            key="ai-panel"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+          >
+            <Card className="border-purple-300/50 bg-gradient-to-br from-purple-50/80 to-indigo-50/80 dark:from-purple-950/30 dark:to-indigo-950/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                  <Brain size={16} />
+                  {t('game.ai_profile_title', {}, 'Your AI Training Profile')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {aiLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex gap-2 flex-wrap pt-1">
+                      {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-6 w-16 rounded-full" />)}
+                    </div>
+                  </div>
+                ) : aiProfile ? (
+                  <>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300">
+                        <TrendingUp size={14} />
+                        <span className="font-semibold">{aiProfile.weak_words_available}</span>
+                        <span className="text-muted-foreground">{t('game.ai_weak_words', {}, 'weak words tracked')}</span>
+                      </div>
+                      <div className="text-muted-foreground text-xs">
+                        {t('game.ai_sessions', { n: aiProfile.recent_sessions }, `${aiProfile.recent_sessions} sessions analyzed`)}
+                      </div>
+                    </div>
+
+                    {!aiProfile.is_personalized && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        {t('game.ai_not_enough_data', {}, 'Play a few more sessions to unlock full personalization. Random words will fill the gaps.')}
+                      </p>
+                    )}
+
+                    {aiProfile.top_weak_words.length > 0 && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1.5">{t('game.ai_focus_words', {}, 'Focus words:')}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {aiProfile.top_weak_words.map((word) => (
+                            <Badge
+                              key={word}
+                              variant="secondary"
+                              className="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200"
+                            >
+                              {word}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    {t('game.ai_no_history', {}, 'No session history yet. AI will start with general word sets and adapt as you play.')}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Start button */}
       <motion.div whileTap={{ scale: 0.98 }}>

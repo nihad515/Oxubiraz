@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Pause, Play, Clock } from 'lucide-react';
+import { Pause, Play, Clock, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -46,6 +46,8 @@ export function GameBoard() {
   if (!session) return null;
 
   const isPaused = status === 'paused';
+  const isAiMode = session.config.mode === 'ai';
+  const targetedCount = isAiMode ? session.words.filter(w => w.is_targeted).length : 0;
 
   return (
     <div className="space-y-4">
@@ -99,7 +101,15 @@ export function GameBoard() {
         {/* Word progress */}
         <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
           <span>{clickedCount} / {session.words.length} {t('game.words', {}, 'words')}</span>
-          <span>{Math.round((clickedCount / session.words.length) * 100)}%</span>
+          <div className="flex items-center gap-2">
+            {isAiMode && (
+              <span className="flex items-center gap-1 text-purple-500">
+                <Sparkles size={11} />
+                {targetedCount} {t('game.ai_targeted', {}, 'targeted')}
+              </span>
+            )}
+            <span>{Math.round((clickedCount / session.words.length) * 100)}%</span>
+          </div>
         </div>
       </div>
 
@@ -143,18 +153,27 @@ export function GameBoard() {
                 disabled={isClicked || (idx !== lastClickedIndex + 1)}
                 aria-label={`Word: ${word.text}`}
                 className={cn(
-                  'rounded-md px-1.5 py-0.5 font-medium transition-all duration-150',
+                  'relative rounded-md px-1.5 py-0.5 font-medium transition-all duration-150',
                   'touch-manipulation cursor-pointer',
                   // Clicked
                   isClicked && 'text-muted-foreground/40 line-through scale-95',
                   // Next to click (highlighted)
                   isNext && 'word-clickable word-current ring-2 ring-primary ring-offset-1 scale-110',
+                  // AI targeted + next: purple ring override
+                  isNext && isAiMode && word.is_targeted && 'ring-purple-500',
                   // Future words
                   isFuture && 'word-clickable opacity-70',
                   // Wrong order click disabled
                   !isClicked && !isNext && 'cursor-not-allowed opacity-50',
                 )}
               >
+                {/* AI targeted indicator dot */}
+                {isAiMode && word.is_targeted && !isClicked && (
+                  <span
+                    className="absolute -top-1.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-purple-500"
+                    aria-hidden="true"
+                  />
+                )}
                 {word.text}
               </motion.button>
             );

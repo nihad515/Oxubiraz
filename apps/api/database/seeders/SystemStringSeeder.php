@@ -573,6 +573,23 @@ class SystemStringSeeder extends Seeder
             ['key' => 'teacher.no_classes', 'group' => 'teacher', 'az' => 'Sizin sinifiniz yoxdur.', 'ru' => 'У вас нет классов.', 'en' => 'You have no classes assigned.'],
             ['key' => 'teacher.grade', 'group' => 'teacher', 'az' => 'Sinif', 'ru' => 'Класс', 'en' => 'Grade'],
             ['key' => 'teacher.no_students', 'group' => 'teacher', 'az' => 'Bu sinifdə tələbə yoxdur.', 'ru' => 'В этом классе нет учеников.', 'en' => 'No students in this class.'],
+
+            // AI game mode
+            ['key' => 'game.ai_mode', 'group' => 'game', 'az' => 'Süni İntelekt', 'ru' => 'ИИ-режим', 'en' => 'AI Mode'],
+            ['key' => 'game.ai_desc', 'group' => 'game', 'az' => 'Şəxsiləşdirilmiş — zəif sözlərinizə əsaslanan adaptiv məşq.', 'ru' => 'Персонализированная адаптивная тренировка на основе слабых слов.', 'en' => 'Personalised — adaptive training based on your weakest words.'],
+            ['key' => 'game.ai_profile_title', 'group' => 'game', 'az' => 'Süni İntelekt Məşq Profiliniz', 'ru' => 'Ваш профиль ИИ-тренировки', 'en' => 'Your AI Training Profile'],
+            ['key' => 'game.ai_weak_words', 'group' => 'game', 'az' => 'zəif söz izlənilir', 'ru' => 'слабых слов отслежено', 'en' => 'weak words tracked'],
+            ['key' => 'game.ai_sessions', 'group' => 'game', 'az' => '{n} sessiya analiz edildi', 'ru' => '{n} сессий проанализировано', 'en' => '{n} sessions analyzed'],
+            ['key' => 'game.ai_not_enough_data', 'group' => 'game', 'az' => 'Tam şəxsiləşdirməni açmaq üçün bir neçə sessiya daha oynayın. Boşluqları təsadüfi sözlər dolduracaq.', 'ru' => 'Сыграйте ещё несколько сессий для полной персонализации. Пробелы заполнят случайные слова.', 'en' => 'Play a few more sessions to unlock full personalization. Random words will fill the gaps.'],
+            ['key' => 'game.ai_focus_words', 'group' => 'game', 'az' => 'Fokus sözlər:', 'ru' => 'Слова для работы:', 'en' => 'Focus words:'],
+            ['key' => 'game.ai_no_history', 'group' => 'game', 'az' => 'Hələ tarix yoxdur. Süni İntelekt ümumi söz dəstlərindən başlayacaq və oynandıqca uyğunlaşacaq.', 'ru' => 'Истории пока нет. ИИ начнёт с общих наборов слов и адаптируется по мере игры.', 'en' => 'No session history yet. AI will start with general word sets and adapt as you play.'],
+            ['key' => 'game.ai_targeted', 'group' => 'game', 'az' => 'hədəflənib', 'ru' => 'целевых', 'en' => 'targeted'],
+            ['key' => 'game.ai_insights_title', 'group' => 'game', 'az' => 'Süni İntelekt Məşq Nəticələri', 'ru' => 'Аналитика ИИ-тренировки', 'en' => 'AI Training Insights'],
+            ['key' => 'game.ai_targeted_read', 'group' => 'game', 'az' => 'Fokus söz oxundu', 'ru' => 'Прочитано целевых слов', 'en' => 'Focus words read'],
+            ['key' => 'game.ai_targeted_rate', 'group' => 'game', 'az' => 'Fokus söz dərəcəsi', 'ru' => 'Доля целевых слов', 'en' => 'Focus word rate'],
+            ['key' => 'game.ai_great_focus', 'group' => 'game', 'az' => 'Fokus sözlərinizdə əla iş! Növbəti sessiyada çətinlik artacaq.', 'ru' => 'Отличная работа с целевыми словами! В следующей сессии сложность возрастёт.', 'en' => 'Great job on your focus words! Difficulty will increase next session.'],
+            ['key' => 'game.ai_keep_going', 'group' => 'game', 'az' => 'Fokus sözlərinizdə yaxşı irəliləyiş. Onları mənimsəmək üçün məşq etməyə davam edin.', 'ru' => 'Хороший прогресс с целевыми словами. Продолжайте тренироваться.', 'en' => 'Good progress on focus words. Keep practicing to master them.'],
+            ['key' => 'game.ai_needs_work', 'group' => 'game', 'az' => 'Bu sözlər daha çox məşq tələb edir. Süni İntelekt onları növbəti sessiyada prioritetləşdirəcək.', 'ru' => 'Эти слова требуют большей практики. ИИ приоритизирует их в следующей сессии.', 'en' => 'These words need more practice. AI will prioritize them next session.'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');

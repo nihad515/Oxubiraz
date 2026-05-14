@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import ReactConfetti from 'react-confetti';
-import { RotateCcw, Trophy, Zap, CheckCircle, Clock, Star } from 'lucide-react';
+import { RotateCcw, Trophy, Zap, CheckCircle, Clock, Star, Sparkles, Brain } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -31,6 +31,13 @@ export function GameResult({ onPlayAgain }: GameResultProps) {
   const wpm = actualSeconds > 0 ? Math.round((wordsRead / actualSeconds) * 60) : 0;
   const accuracy = totalWords > 0 ? Math.round((wordsRead / totalWords) * 100) : 0;
   const xpEarned = finalResult?.xp_earned ?? 0;
+
+  const isAiMode = session.config.mode === 'ai';
+  const targetedWords = session.words.filter(w => w.is_targeted);
+  const targetedRead = targetedWords.filter(w => w.clicked).length;
+  const targetedRate = targetedWords.length > 0
+    ? Math.round((targetedRead / targetedWords.length) * 100)
+    : null;
 
   const getPerformanceRating = () => {
     if (wpm >= 200) return { label: 'Excellent!', emoji: '🏆', color: 'text-yellow-500' };
@@ -140,6 +147,51 @@ export function GameResult({ onPlayAgain }: GameResultProps) {
               {t('achievement.xp_earned', { xp: xpEarned })}
             </span>
           </div>
+        </motion.div>
+      )}
+
+      {/* AI Insights */}
+      {isAiMode && targetedRate !== null && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="rounded-xl border border-purple-300/50 bg-gradient-to-br from-purple-50/80 to-indigo-50/80 p-4 dark:from-purple-950/30 dark:to-indigo-950/30"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Brain size={16} className="text-purple-600 dark:text-purple-400" />
+            <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+              {t('game.ai_insights_title', {}, 'AI Training Insights')}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-lg bg-purple-100/60 dark:bg-purple-900/30 p-3">
+              <div className="flex items-center justify-center gap-1 text-xl font-black text-purple-700 dark:text-purple-300">
+                <Sparkles size={16} />
+                {targetedRead}/{targetedWords.length}
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {t('game.ai_targeted_read', {}, 'Focus words read')}
+              </div>
+            </div>
+            <div className="rounded-lg bg-purple-100/60 dark:bg-purple-900/30 p-3">
+              <div className="text-xl font-black text-purple-700 dark:text-purple-300">
+                {targetedRate}%
+              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">
+                {t('game.ai_targeted_rate', {}, 'Focus word rate')}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground mt-3 text-center">
+            {targetedRate >= 80
+              ? t('game.ai_great_focus', {}, 'Great job on your focus words! Difficulty will increase next session.')
+              : targetedRate >= 50
+                ? t('game.ai_keep_going', {}, 'Good progress on focus words. Keep practicing to master them.')
+                : t('game.ai_needs_work', {}, 'These words need more practice. AI will prioritize them next session.')}
+          </p>
         </motion.div>
       )}
 

@@ -108,6 +108,14 @@ class GameController extends Controller
         ]);
     }
 
+    public function aiProfile(Request $request): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'data'   => $this->gameService->aiProfile($request->user()),
+        ]);
+    }
+
     public function randomWords(Request $request): JsonResponse
     {
         $validated = $request->validate([

@@ -182,6 +182,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('random-words', [GameController::class, 'randomWords'])->name('random-words');
             Route::get('history', [GameController::class, 'history'])->name('history');
             Route::get('results', [GameController::class, 'results'])->name('results');
+            Route::get('ai-profile', [GameController::class, 'aiProfile'])->name('ai-profile');
             Route::post('start', [GameController::class, 'start'])->name('start')
                 ->middleware('throttle:game');
             Route::post('finish', [GameController::class, 'finish'])->name('finish');

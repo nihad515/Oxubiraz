@@ -17,7 +17,15 @@ export interface GameWord {
   text: string;
   index: number;
   clicked: boolean;
+  is_targeted: boolean;
   click_time?: number;
+}
+
+export interface AiProfile {
+  weak_words_available: number;
+  recent_sessions: number;
+  is_personalized: boolean;
+  top_weak_words: string[];
 }
 
 export interface GameSession {
