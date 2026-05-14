@@ -7,6 +7,9 @@ export default defineConfig({
     globals: true,
     setupFiles: [],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    environmentMatchGlobs: [
+      ['src/**/*.{test,spec}.tsx', 'jsdom'],
+    ],
   },
   resolve: {
     alias: {
