@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
   "buildCommand": "npx turbo run build --filter=@oxubiraz/web",
-  "installCommand": "npm install",
+  "installCommand": "npm install --ignore-scripts",
   "outputDirectory": "apps/web/.next"
 }
