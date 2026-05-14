@@ -3,20 +3,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Zap, Trophy, Star, BarChart3, Flame, Target, TrendingUp, Clock } from 'lucide-react';
+import { Zap, Flame, Target, TrendingUp, Clock, BarChart3 } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { WpmTrendChart } from '@/components/analytics/wpm-trend-chart';
 import { useAuthStore } from '@/store/auth-store';
 import { useString } from '@/hooks/use-string';
 import apiClient from '@/lib/api/client';
 import { API } from '@/lib/api/endpoints';
 import { ROUTES } from '@/config/routes';
-import { formatWpm, formatNumber } from '@/lib/utils/format';
-import { calculateXpToNextLevel } from '@/lib/utils/format';
+import { formatWpm, formatNumber, calculateXpToNextLevel } from '@/lib/utils/format';
 import { LEVEL_THRESHOLDS } from '@/types/gamification';
 import type { StudentStats } from '@/types/analytics';
 import type { ApiResponse } from '@/types/api';
@@ -170,41 +170,28 @@ export function StudentDashboard() {
         </Button>
       </motion.div>
 
-      {/* Recent sessions placeholder */}
+      {/* WPM trend chart */}
       <motion.div variants={itemVariants}>
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">{t('analytics.recent_sessions', {}, 'Recent Sessions')}</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 size={16} className="text-primary" />
+              {t('analytics.wpm_trend', {}, 'WPM Trend')}
+            </CardTitle>
+            <Button asChild variant="ghost" size="sm" className="text-xs h-7 px-2">
+              <Link href={ROUTES.student.progress}>{t('common.view_all', {}, 'View All')}</Link>
+            </Button>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
+              <Skeleton className="h-48 w-full" />
             ) : (stats?.wpm_trend?.length ?? 0) === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
                 <Zap size={32} className="mx-auto mb-2 opacity-30" />
                 <p>{t('analytics.no_sessions', {}, 'No sessions yet. Start playing!')}</p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {stats?.wpm_trend?.slice(0, 5).map((record, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg border p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
-                        {i + 1}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium">{record.mode}</div>
-                        <div className="text-xs text-muted-foreground">{record.date}</div>
-                      </div>
-                    </div>
-                    <Badge variant="secondary">{record.wpm} WPM</Badge>
-                  </div>
-                ))}
-              </div>
+              <WpmTrendChart data={stats?.wpm_trend} dataKey="wpm" height={180} />
             )}
           </CardContent>
         </Card>

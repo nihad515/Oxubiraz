@@ -615,6 +615,20 @@ class SystemStringSeeder extends Seeder
             ['key' => 'game.get_coaching', 'group' => 'game', 'az' => 'Rəy al', 'ru' => 'Получить отзыв', 'en' => 'Get feedback'],
             ['key' => 'game.coaching_loading', 'group' => 'game', 'az' => 'Fərdi məsləhət hazırlanır…', 'ru' => 'Генерируем персональный совет…', 'en' => 'Generating your personalised tip…'],
             ['key' => 'game.coaching_unavailable', 'group' => 'game', 'az' => 'Süni İntelekt məşqçisi hazırda mövcud deyil.', 'ru' => 'ИИ-тренер сейчас недоступен.', 'en' => 'AI coaching is not available right now.'],
+
+            // Student progress page
+            ['key' => 'student.progress_title', 'group' => 'student', 'az' => 'Mənim İrəliləyişim', 'ru' => 'Мой прогресс', 'en' => 'My Progress'],
+            ['key' => 'student.progress_subtitle', 'group' => 'student', 'az' => 'Oxu irəliləyişinizi izləyin', 'ru' => 'Следите за своим прогрессом в чтении', 'en' => 'Track your reading improvement'],
+
+            // Analytics — student-facing stat labels
+            ['key' => 'analytics.total_words', 'group' => 'analytics', 'az' => 'Oxunan Sözlər', 'ru' => 'Слов прочитано', 'en' => 'Total Words'],
+            ['key' => 'analytics.total_time', 'group' => 'analytics', 'az' => 'Ümumi Vaxt', 'ru' => 'Общее Время', 'en' => 'Total Time'],
+            ['key' => 'analytics.streak_current', 'group' => 'analytics', 'az' => 'Cari Seriya', 'ru' => 'Текущая серия', 'en' => 'Current Streak'],
+            ['key' => 'analytics.streak_longest', 'group' => 'analytics', 'az' => 'Ən Uzun Seriya', 'ru' => 'Лучшая серия', 'en' => 'Best Streak'],
+
+            // Common units
+            ['key' => 'common.days', 'group' => 'common', 'az' => 'gün', 'ru' => 'дн.', 'en' => 'days'],
+            ['key' => 'common.minutes', 'group' => 'common', 'az' => 'dəq', 'ru' => 'мин', 'en' => 'min'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, School, Shield, Languages, FileText, BookOpen,
   BarChart3, Trophy, Bell, Settings, Zap, Home, Star, List,
-  GraduationCap, Heart, ChevronLeft, ChevronRight, Activity,
+  GraduationCap, Heart, ChevronLeft, ChevronRight, Activity, TrendingUp,
 } from 'lucide-react';
 
 import { usePermission } from '@/hooks/use-permission';
@@ -63,6 +63,7 @@ function useNavItems(): NavItem[] {
     return [
       { href: ROUTES.student.root, icon: <Home size={20} />, labelKey: 'nav.dashboard', exact: true },
       { href: ROUTES.student.game, icon: <Zap size={20} />, labelKey: 'nav.play' },
+      { href: ROUTES.student.progress, icon: <TrendingUp size={20} />, labelKey: 'nav.progress' },
       { href: ROUTES.student.achievements, icon: <Star size={20} />, labelKey: 'nav.achievements' },
       { href: ROUTES.student.leaderboard, icon: <List size={20} />, labelKey: 'nav.leaderboard' },
       { href: ROUTES.student.history, icon: <BarChart3 size={20} />, labelKey: 'nav.history' },

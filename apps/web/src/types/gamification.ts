@@ -9,6 +9,7 @@ export interface Achievement {
   condition_type: AchievementConditionType;
   condition_value: number;
   is_secret: boolean;
+  is_earned?: boolean;
   earned_at?: string;
 }
 
@@ -43,13 +44,14 @@ export interface XpEvent {
 export interface LeaderboardEntry {
   rank: number;
   user_id: number;
-  username: string;
+  name: string;
   avatar?: string;
   xp: number;
   level: number;
   best_wpm: number;
+  session_count?: number;
   school?: string;
-  is_current_user: boolean;
+  is_current_user?: boolean;
 }
 
 export const XP_REWARDS = {

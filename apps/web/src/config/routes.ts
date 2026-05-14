@@ -48,6 +48,7 @@ export const ROUTES = {
     achievements: '/student/achievements',
     leaderboard: '/student/leaderboard',
     history: '/student/history',
+    progress: '/student/progress',
     notifications: '/student/notifications',
     profile: '/student/profile',
   },
