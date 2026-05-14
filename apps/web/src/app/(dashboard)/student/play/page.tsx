@@ -1,15 +1,6 @@
-import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
-import { GameLauncher } from '@/components/game/game-launcher';
-
-export const metadata: Metadata = {
-  title: 'Play',
-};
-
+// Canonical URL is /student/game — keep /student/play as a redirect for old links
 export default function PlayPage() {
-  return (
-    <div className="mx-auto max-w-4xl">
-      <GameLauncher />
-    </div>
-  );
+  redirect('/student/game');
 }

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { User, Camera, Lock, Globe, Shield } from 'lucide-react';
+import { User, Camera, Lock, Globe, Shield, Bell } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/store/auth-store';
 import { useString } from '@/hooks/use-string';
 import { LocaleSwitcher } from '@/components/shared/locale-switcher';
+import { PushToggle } from '@/components/notifications/push-permission-prompt';
 import apiClient from '@/lib/api/client';
 import { API } from '@/lib/api/endpoints';
 
@@ -175,6 +176,17 @@ export default function ProfilePage() {
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Globe size={16} />{t('common.language', {}, 'Language')}</CardTitle></CardHeader>
         <CardContent>
           <LocaleSwitcher />
+        </CardContent>
+      </Card>
+
+      {/* Notifications */}
+      <Card>
+        <CardHeader><CardTitle className="text-base flex items-center gap-2"><Bell size={16} />{t('nav.notifications', {}, 'Notifications')}</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {t('notifications.push_settings_desc', {}, 'Manage push notifications for achievements and milestones.')}
+          </p>
+          <PushToggle />
         </CardContent>
       </Card>
 
