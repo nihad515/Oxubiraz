@@ -51,7 +51,7 @@ test.describe('Authentication', () => {
 
   test.describe('Logout', () => {
     test('student can log out', async ({ studentPage: page }) => {
-      await page.goto('/student/dashboard');
+      await page.goto('/student');
       await page.getByRole('button', { name: /profil|profile|account|hesab/i }).click();
       await page.getByRole('menuitem', { name: /çıx|logout|sign out/i }).click();
       await page.waitForURL(/\/login/, { timeout: 5_000 });

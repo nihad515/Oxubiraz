@@ -2,13 +2,13 @@ import { test, expect } from './fixtures';
 
 test.describe('Student Dashboard', () => {
   test('renders key stats', async ({ studentPage: page }) => {
-    await page.goto('/student/dashboard');
+    await page.goto('/student');
     // XP, streak, level stats should be visible
     await expect(page.getByText(/xp|streak|səviyyə|level/i).first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('shows navigation items', async ({ studentPage: page }) => {
-    await page.goto('/student/dashboard');
+    await page.goto('/student');
     // Sidebar or bottom nav should exist
     const nav = page.getByRole('navigation').first();
     await expect(nav).toBeVisible();
@@ -25,7 +25,7 @@ test.describe('Student Dashboard', () => {
     await page.getByRole('button', { name: /daxil ol|login|sign in/i }).click();
     await page.waitForURL(/\/student/, { timeout: 10_000 });
 
-    await page.goto('/student/dashboard');
+    await page.goto('/student');
     // Bottom nav should be visible on mobile (not hidden by lg:hidden)
     const bottomNav = page.locator('nav').last();
     await expect(bottomNav).toBeVisible();

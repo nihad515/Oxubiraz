@@ -17,6 +17,11 @@ const USERS: Record<string, TestUser> = {
     password: process.env.E2E_ADMIN_PASSWORD ?? 'Admin@123456',
     role: 'admin',
   },
+  teacher: {
+    email: process.env.E2E_TEACHER_EMAIL ?? 'teacher@oxubiraz.az',
+    password: process.env.E2E_TEACHER_PASSWORD ?? 'Teacher@123456',
+    role: 'teacher',
+  },
 };
 
 async function loginAs(page: Page, user: TestUser) {
@@ -30,6 +35,7 @@ async function loginAs(page: Page, user: TestUser) {
 type AuthFixtures = {
   studentPage: Page;
   adminPage: Page;
+  teacherPage: Page;
   loginAs: (user: TestUser) => Promise<void>;
 };
 
@@ -45,6 +51,13 @@ export const test = base.extend<AuthFixtures>({
     const context = await browser.newContext();
     const page = await context.newPage();
     await loginAs(page, USERS.admin);
+    await use(page);
+    await context.close();
+  },
+  teacherPage: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await loginAs(page, USERS.teacher);
     await use(page);
     await context.close();
   },

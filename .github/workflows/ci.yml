@@ -278,6 +278,8 @@ jobs:
           E2E_STUDENT_PASSWORD: Student@123456
           E2E_ADMIN_EMAIL: admin@oxubiraz.az
           E2E_ADMIN_PASSWORD: Admin@123456
+          E2E_TEACHER_EMAIL: teacher@oxubiraz.az
+          E2E_TEACHER_PASSWORD: Teacher@123456
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
