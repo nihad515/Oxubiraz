@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\WordListExport;
 use App\Http\Controllers\Controller;
 use App\Models\Word;
 use App\Models\WordList;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -199,23 +201,12 @@ class WordListController extends Controller
         ], 201);
     }
 
-    public function exportWords(WordList $wordList): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function exportWords(Request $request, WordList $wordList): mixed
     {
-        $filename = 'words_' . str($wordList->name)->slug() . '_' . now()->format('Ymd') . '.csv';
+        $format = $request->input('format', 'xlsx');
+        $filename = 'words_' . str($wordList->name)->slug() . '_' . now()->format('Ymd') . '.' . $format;
+        $writerType = $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
 
-        return response()->streamDownload(function () use ($wordList) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['text', 'syllable_count', 'frequency']);
-
-            $wordList->words()
-                ->orderBy('frequency', 'desc')
-                ->chunk(500, function ($words) use ($handle) {
-                    foreach ($words as $word) {
-                        fputcsv($handle, [$word->text, $word->syllable_count, $word->frequency]);
-                    }
-                });
-
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        return Excel::download(new WordListExport($wordList), $filename, $writerType);
     }
 }

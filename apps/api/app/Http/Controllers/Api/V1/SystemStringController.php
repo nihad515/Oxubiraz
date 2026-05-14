@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\SystemStringsExport;
 use App\Http\Controllers\Controller;
 use App\Models\SystemString;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -121,17 +123,13 @@ class SystemStringController extends Controller
         return response()->json(['status' => 'success', 'data' => $groups]);
     }
 
-    public function export(): mixed
+    public function export(Request $request): mixed
     {
-        $strings = SystemString::all();
-        return response()->streamDownload(function () use ($strings) {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['string_key', 'group_name', 'az', 'ru', 'en', 'description']);
-            foreach ($strings as $s) {
-                fputcsv($out, [$s->string_key, $s->group_name, $s->az, $s->ru, $s->en, $s->description]);
-            }
-            fclose($out);
-        }, 'strings.csv', ['Content-Type' => 'text/csv']);
+        $format = $request->input('format', 'xlsx');
+        $filename = 'strings_' . now()->format('Ymd_His') . '.' . $format;
+        $writerType = $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
+
+        return Excel::download(new SystemStringsExport(), $filename, $writerType);
     }
 
     public function import(Request $request): JsonResponse

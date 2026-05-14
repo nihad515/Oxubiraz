@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -9,9 +10,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Maatwebsite\Excel\Facades\Excel;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class UserController extends Controller
 {
@@ -224,7 +225,7 @@ class UserController extends Controller
         return response()->json(['status' => 'success', 'message' => 'All other sessions revoked.']);
     }
 
-    public function export(Request $request): StreamedResponse
+    public function export(Request $request): mixed
     {
         $users = QueryBuilder::for(User::class)
             ->allowedFilters([
@@ -236,27 +237,10 @@ class UserController extends Controller
             ->with(['roles', 'school'])
             ->get();
 
-        $filename = 'users_' . now()->format('Ymd_His') . '.csv';
+        $format = $request->input('format', 'xlsx');
+        $filename = 'users_' . now()->format('Ymd_His') . '.' . $format;
+        $writerType = $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
 
-        return response()->streamDownload(function () use ($users) {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'username', 'first_name', 'last_name', 'email', 'role', 'school', 'level', 'xp', 'is_active', 'created_at']);
-            foreach ($users as $user) {
-                fputcsv($out, [
-                    $user->id,
-                    $user->username,
-                    $user->first_name,
-                    $user->last_name,
-                    $user->email,
-                    $user->roles->pluck('name')->join(','),
-                    $user->school?->name,
-                    $user->level,
-                    $user->xp,
-                    $user->is_active ? '1' : '0',
-                    $user->created_at->toDateTimeString(),
-                ]);
-            }
-            fclose($out);
-        }, $filename, ['Content-Type' => 'text/csv']);
+        return Excel::download(new UsersExport($users), $filename, $writerType);
     }
 }

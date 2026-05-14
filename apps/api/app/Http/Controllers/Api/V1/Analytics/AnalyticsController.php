@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1\Analytics;
 
+use App\Exports\GameSessionsExport;
 use App\Http\Controllers\Controller;
 use App\Models\GameSession;
 use App\Models\User;
@@ -11,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AnalyticsController extends Controller
 {
@@ -254,24 +256,16 @@ class AnalyticsController extends Controller
 
     public function export(Request $request): mixed
     {
-        $format = $request->input('format', 'csv');
-        $sessions = GameSession::with('user:id,username,first_name,last_name')
+        $sessions = GameSession::with('user:id,username')
             ->orderByDesc('created_at')
             ->limit(10000)
             ->get();
 
-        return response()->streamDownload(function () use ($sessions) {
-            $out = fopen('php://output', 'w');
-            fputcsv($out, ['id', 'username', 'mode', 'language', 'wpm', 'clicked_words', 'total_words', 'completion_%', 'xp_earned', 'created_at']);
-            foreach ($sessions as $s) {
-                fputcsv($out, [
-                    $s->id, $s->user?->username, $s->mode, $s->language,
-                    $s->wpm, $s->clicked_words, $s->total_words, $s->completion_percentage,
-                    $s->xp_earned, $s->created_at->toIso8601String(),
-                ]);
-            }
-            fclose($out);
-        }, 'analytics.csv', ['Content-Type' => 'text/csv']);
+        $format = $request->input('format', 'xlsx');
+        $filename = 'analytics_' . now()->format('Ymd_His') . '.' . $format;
+        $writerType = $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
+
+        return Excel::download(new GameSessionsExport($sessions), $filename, $writerType);
     }
 
     private function reportLabels(string $lang): array
