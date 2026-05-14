@@ -1,0 +1,7 @@
+{
+  "framework": "nextjs",
+  "rootDirectory": "apps/web",
+  "buildCommand": "cd ../.. && npx turbo run build --filter=@oxubiraz/web",
+  "installCommand": "cd ../.. && npm install",
+  "outputDirectory": ".next"
+}
