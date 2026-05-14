@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Zap, Star, BarChart3, User } from 'lucide-react';
+import { Home, Zap, Star, BarChart3, User, Bell, GraduationCap, Heart } from 'lucide-react';
 
 import { usePermission } from '@/hooks/use-permission';
 import { useString } from '@/hooks/use-string';
@@ -17,29 +17,32 @@ export function BottomNav() {
   const items = isStudent
     ? [
         { href: ROUTES.student.root, icon: Home, label: t('nav.dashboard') },
-        { href: ROUTES.student.play, icon: Zap, label: t('nav.play') },
+        { href: ROUTES.student.game, icon: Zap, label: t('nav.play') },
         { href: ROUTES.student.achievements, icon: Star, label: t('nav.achievements') },
-        { href: ROUTES.student.history, icon: BarChart3, label: t('nav.history') },
+        { href: ROUTES.student.notifications, icon: Bell, label: t('nav.notifications', {}, 'Alerts') },
         { href: ROUTES.profile, icon: User, label: t('nav.profile', {}, 'Profile') },
       ]
     : isTeacher
     ? [
         { href: ROUTES.teacher.root, icon: Home, label: t('nav.dashboard') },
-        { href: ROUTES.teacher.students, icon: User, label: t('nav.students') },
+        { href: ROUTES.teacher.students, icon: GraduationCap, label: t('nav.students') },
+        { href: ROUTES.teacher.classes, icon: Star, label: t('nav.classes') },
         { href: ROUTES.teacher.analytics, icon: BarChart3, label: t('nav.analytics') },
         { href: ROUTES.profile, icon: User, label: t('nav.profile', {}, 'Profile') },
       ]
     : isParent
     ? [
         { href: ROUTES.parent.root, icon: Home, label: t('nav.dashboard') },
-        { href: ROUTES.parent.children, icon: Star, label: t('nav.children') },
+        { href: ROUTES.parent.children, icon: Heart, label: t('nav.children') },
         { href: ROUTES.parent.progress, icon: BarChart3, label: t('nav.progress') },
+        { href: ROUTES.parent.notifications, icon: Bell, label: t('nav.notifications', {}, 'Alerts') },
         { href: ROUTES.profile, icon: User, label: t('nav.profile', {}, 'Profile') },
       ]
     : [
         { href: ROUTES.admin.root, icon: Home, label: t('nav.dashboard') },
         { href: ROUTES.admin.users, icon: User, label: t('nav.users') },
         { href: ROUTES.admin.analytics, icon: BarChart3, label: t('nav.analytics') },
+        { href: ROUTES.admin.notifications, icon: Bell, label: t('nav.notifications', {}, 'Alerts') },
         { href: ROUTES.profile, icon: User, label: t('nav.profile', {}, 'Profile') },
       ];
 
@@ -54,7 +57,7 @@ export function BottomNav() {
               href={href}
               className={cn(
                 'flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors',
-                'touch-target touch-manipulation min-w-[60px]',
+                'touch-target touch-manipulation min-w-[52px]',
                 active
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground',

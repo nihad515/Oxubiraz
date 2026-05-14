@@ -48,6 +48,7 @@ function useNavItems(): NavItem[] {
     return [
       { href: ROUTES.teacher.root, icon: <LayoutDashboard size={20} />, labelKey: 'nav.dashboard', exact: true },
       { href: ROUTES.teacher.students, icon: <GraduationCap size={20} />, labelKey: 'nav.students' },
+      { href: ROUTES.teacher.classes, icon: <School size={20} />, labelKey: 'nav.classes' },
       { href: ROUTES.teacher.competitions, icon: <Trophy size={20} />, labelKey: 'nav.competitions' },
       { href: ROUTES.teacher.analytics, icon: <BarChart3 size={20} />, labelKey: 'nav.analytics' },
       { href: ROUTES.teacher.notifications, icon: <Bell size={20} />, labelKey: 'nav.notifications' },
@@ -57,10 +58,11 @@ function useNavItems(): NavItem[] {
   if (isStudent) {
     return [
       { href: ROUTES.student.root, icon: <Home size={20} />, labelKey: 'nav.dashboard', exact: true },
-      { href: ROUTES.student.play, icon: <Zap size={20} />, labelKey: 'nav.play' },
+      { href: ROUTES.student.game, icon: <Zap size={20} />, labelKey: 'nav.play' },
       { href: ROUTES.student.achievements, icon: <Star size={20} />, labelKey: 'nav.achievements' },
       { href: ROUTES.student.leaderboard, icon: <List size={20} />, labelKey: 'nav.leaderboard' },
       { href: ROUTES.student.history, icon: <BarChart3 size={20} />, labelKey: 'nav.history' },
+      { href: ROUTES.student.notifications, icon: <Bell size={20} />, labelKey: 'nav.notifications' },
     ];
   }
 

@@ -34,20 +34,21 @@ export const ROUTES = {
   teacher: {
     root: '/teacher',
     students: '/teacher/students',
-    tasks: '/teacher/tasks',
+    classes: '/teacher/classes',
     competitions: '/teacher/competitions',
     analytics: '/teacher/analytics',
-    reports: '/teacher/reports',
     notifications: '/teacher/notifications',
   },
 
   // Student
   student: {
     root: '/student',
-    play: '/student/play',
+    game: '/student/game',
+    play: '/student/game', // backward-compat alias
     achievements: '/student/achievements',
     leaderboard: '/student/leaderboard',
     history: '/student/history',
+    notifications: '/student/notifications',
     profile: '/student/profile',
   },
 
@@ -59,7 +60,7 @@ export const ROUTES = {
     notifications: '/parent/notifications',
   },
 
-  // Profile
+  // Shared
   profile: '/profile',
   settings: '/settings',
 } as const;

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Notifications\AdminBroadcast;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class NotificationController extends Controller
 {
@@ -63,5 +66,34 @@ class NotificationController extends Controller
         $request->user()->notifications()->delete();
 
         return response()->json(['status' => 'success', 'message' => 'All notifications deleted.']);
+    }
+
+    public function broadcast(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'title'   => ['required', 'string', 'max:100'],
+            'message' => ['required', 'string', 'max:500'],
+            'target'  => ['required', 'in:all,students,teachers,parents'],
+        ]);
+
+        $query = User::active();
+
+        if ($validated['target'] !== 'all') {
+            $role = rtrim($validated['target'], 's'); // students→student, teachers→teacher, parents→parent
+            $query->role($role);
+        }
+
+        $recipients = $query->get();
+
+        Notification::send($recipients, new AdminBroadcast(
+            title: $validated['title'],
+            message: $validated['message'],
+        ));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Broadcast queued.',
+            'data' => ['sent' => $recipients->count()],
+        ]);
     }
 }

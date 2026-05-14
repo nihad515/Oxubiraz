@@ -57,3 +57,8 @@ docker/volumes/
 
 # Generated types
 apps/web/src/types/generated/
+
+# VS Code Docker extension stubs (auto-generated, not project files)
+compose.yaml
+compose.debug.yaml
+Dockerfile

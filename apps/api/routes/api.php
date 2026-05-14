@@ -249,6 +249,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::post('read-all', [NotificationController::class, 'markAllRead'])->name('mark-all-read');
             Route::delete('{id}', [NotificationController::class, 'destroy'])->name('destroy');
             Route::delete('/', [NotificationController::class, 'destroyAll'])->name('destroy-all');
+            Route::post('broadcast', [NotificationController::class, 'broadcast'])
+                ->name('broadcast')
+                ->middleware('permission:manage_settings');
         });
 
         // Push subscriptions

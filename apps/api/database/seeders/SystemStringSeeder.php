@@ -538,6 +538,41 @@ class SystemStringSeeder extends Seeder
             ['key' => 'words.export_csv', 'group' => 'words', 'az' => 'CSV ixrac et', 'ru' => 'Экспортировать CSV', 'en' => 'Export CSV'],
             ['key' => 'words.import_csv', 'group' => 'words', 'az' => 'CSV idxal et', 'ru' => 'Импортировать CSV', 'en' => 'Import CSV'],
             ['key' => 'words.import_success', 'group' => 'words', 'az' => '{imported} söz idxal edildi, {skipped} atlandı', 'ru' => '{imported} слов импортировано, {skipped} пропущено', 'en' => '{imported} words imported, {skipped} skipped'],
+
+            // Broadcast / admin notifications
+            ['key' => 'notifications.broadcast_sent', 'group' => 'notifications', 'az' => 'Yayım bildirişi göndərildi', 'ru' => 'Широковещательное уведомление отправлено', 'en' => 'Broadcast notification sent'],
+            ['key' => 'notifications.new_broadcast', 'group' => 'notifications', 'az' => 'Yayım göndər', 'ru' => 'Отправить рассылку', 'en' => 'Send Broadcast'],
+            ['key' => 'notifications.message', 'group' => 'notifications', 'az' => 'Mesaj', 'ru' => 'Сообщение', 'en' => 'Message'],
+            ['key' => 'notifications.audience', 'group' => 'notifications', 'az' => 'Tamaşaçılar', 'ru' => 'Аудитория', 'en' => 'Audience'],
+            ['key' => 'notifications.broadcast_title_placeholder', 'group' => 'notifications', 'az' => 'məs. Yeni söz siyahıları əlavə edildi!', 'ru' => 'напр. Добавлены новые списки слов!', 'en' => 'e.g. New word lists added!'],
+            ['key' => 'notifications.broadcast_message_placeholder', 'group' => 'notifications', 'az' => 'Mesajınızı buraya yazın...', 'ru' => 'Напишите ваше сообщение здесь...', 'en' => 'Write your message here...'],
+            ['key' => 'notifications.target_all', 'group' => 'notifications', 'az' => 'Bütün istifadəçilər', 'ru' => 'Все пользователи', 'en' => 'All users'],
+            ['key' => 'notifications.target_students', 'group' => 'notifications', 'az' => 'Yalnız tələbələr', 'ru' => 'Только студенты', 'en' => 'Students only'],
+            ['key' => 'notifications.target_teachers', 'group' => 'notifications', 'az' => 'Yalnız müəllimlər', 'ru' => 'Только учителя', 'en' => 'Teachers only'],
+            ['key' => 'notifications.target_parents', 'group' => 'notifications', 'az' => 'Yalnız valideynlər', 'ru' => 'Только родители', 'en' => 'Parents only'],
+            ['key' => 'notifications.send_broadcast', 'group' => 'notifications', 'az' => 'Bildiriş göndər', 'ru' => 'Отправить уведомление', 'en' => 'Send notification'],
+            ['key' => 'notifications.broadcast_delivered', 'group' => 'notifications', 'az' => 'Yayım çatdırıldı!', 'ru' => 'Рассылка доставлена!', 'en' => 'Broadcast delivered!'],
+            ['key' => 'notifications.recipients', 'group' => 'notifications', 'az' => 'alıcı', 'ru' => 'получателей', 'en' => 'recipients'],
+            ['key' => 'notifications.broadcast_tips_title', 'group' => 'notifications', 'az' => 'İpuçları', 'ru' => 'Советы', 'en' => 'Tips'],
+            ['key' => 'notifications.tip_1', 'group' => 'notifications', 'az' => 'Yayımlar tətbaxarxası verilənlər bazası bildirişləri və abunə olunmuş cihazlara push bildirişlər kimi göndərilir.', 'ru' => 'Рассылки отправляются как внутренние уведомления и push-уведомления на подписанные устройства.', 'en' => 'Broadcasts are sent as in-app database notifications and push notifications to subscribed devices.'],
+            ['key' => 'notifications.tip_2', 'group' => 'notifications', 'az' => 'Başlığı qısa saxlayın — push bildirişi üçün ideal olaraq 60 simvoldan az.', 'ru' => 'Держите заголовок коротким — идеально менее 60 символов для push-уведомлений.', 'en' => 'Keep titles short — under 60 characters is ideal for push notification display.'],
+            ['key' => 'notifications.tip_3', 'group' => 'notifications', 'az' => 'Bildiriş yorğunluğunun qarşısını almaq üçün hədəf seqmentasiyasından istifadə edin.', 'ru' => 'Используйте таргетинг для снижения усталости от уведомлений.', 'en' => 'Use audience targeting to avoid notification fatigue.'],
+            ['key' => 'admin.notifications_desc', 'group' => 'admin', 'az' => 'Rol əsasında istifadəçilərə kütləvi bildirişlər göndərin.', 'ru' => 'Отправляйте массовые уведомления пользователям по ролям.', 'en' => 'Send broadcast notifications to users by role.'],
+
+            // Common sending state
+            ['key' => 'common.sending', 'group' => 'common', 'az' => 'Göndərilir...', 'ru' => 'Отправка...', 'en' => 'Sending...'],
+
+            // Parent progress page
+            ['key' => 'parent.progress_desc', 'group' => 'parent', 'az' => 'Uşaqlarınızın oxu performansını müqayisəli izləyin.', 'ru' => 'Отслеживайте успехи детей в чтении рядом.', 'en' => 'Track your children\'s reading performance side by side.'],
+            ['key' => 'parent.no_children', 'group' => 'parent', 'az' => 'Hesabınıza bağlı uşaq yoxdur.', 'ru' => 'К вашему аккаунту не привязаны дети.', 'en' => 'No children linked to your account.'],
+            ['key' => 'parent.add_child', 'group' => 'parent', 'az' => 'Uşaq əlavə et', 'ru' => 'Добавить ребёнка', 'en' => 'Add a child'],
+            ['key' => 'parent.view_detail', 'group' => 'parent', 'az' => 'Ətraflı məlumat', 'ru' => 'Подробнее', 'en' => 'Full detail'],
+
+            // Teacher classes page
+            ['key' => 'teacher.classes_desc', 'group' => 'teacher', 'az' => 'Siniflərinizdəki tələbələri idarə edin.', 'ru' => 'Управляйте учениками в ваших классах.', 'en' => 'Manage students in your classes.'],
+            ['key' => 'teacher.no_classes', 'group' => 'teacher', 'az' => 'Sizin sinifiniz yoxdur.', 'ru' => 'У вас нет классов.', 'en' => 'You have no classes assigned.'],
+            ['key' => 'teacher.grade', 'group' => 'teacher', 'az' => 'Sinif', 'ru' => 'Класс', 'en' => 'Grade'],
+            ['key' => 'teacher.no_students', 'group' => 'teacher', 'az' => 'Bu sinifdə tələbə yoxdur.', 'ru' => 'В этом классе нет учеников.', 'en' => 'No students in this class.'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');
