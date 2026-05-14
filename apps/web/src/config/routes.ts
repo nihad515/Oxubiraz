@@ -50,7 +50,7 @@ export const ROUTES = {
     history: '/student/history',
     progress: '/student/progress',
     notifications: '/student/notifications',
-    profile: '/student/profile',
+    profile: '/profile',
   },
 
   // Parent

@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { useString } from '@/hooks/use-string';
 import apiClient from '@/lib/api/client';
+import { API } from '@/lib/api/endpoints';
 
 const broadcastSchema = z.object({
   title: z.string().min(3).max(100),
@@ -50,7 +51,7 @@ export default function AdminNotificationsPage() {
 
   const broadcastMutation = useMutation({
     mutationFn: (data: BroadcastForm) =>
-      apiClient.post('/notifications/broadcast', data),
+      apiClient.post(API.notifications.broadcast, data),
     onSuccess: (res: any, vars) => {
       setSent({ title: vars.title, target: vars.target, count: res.data?.sent });
       form.reset();

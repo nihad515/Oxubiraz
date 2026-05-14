@@ -38,7 +38,7 @@ test.describe('Student Dashboard', () => {
   });
 
   test('profile page loads with user data', async ({ studentPage: page }) => {
-    await page.goto('/student/profile');
+    await page.goto('/profile');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 5_000 });
   });
 

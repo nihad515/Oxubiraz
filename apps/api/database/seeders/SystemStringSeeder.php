@@ -511,6 +511,7 @@ class SystemStringSeeder extends Seeder
             ['key' => 'notifications.push_prompt_body', 'group' => 'notifications', 'az' => 'Nailiyyətlər, səviyyə artımları və seriyalar haqqında bildiriş alın.', 'ru' => 'Получайте уведомления о достижениях, повышениях уровня и сериях.', 'en' => 'Get notified about achievements, level-ups, and streaks.'],
             ['key' => 'notifications.push_prompt_title', 'group' => 'notifications', 'az' => 'İrəliləyişinizdən xəbərdar olun!', 'ru' => 'Следите за своим прогрессом!', 'en' => 'Stay on top of your progress!'],
             ['key' => 'notifications.push_unsupported', 'group' => 'notifications', 'az' => 'Bu brauzer push bildirişlərini dəstəkləmir', 'ru' => 'Этот браузер не поддерживает push-уведомления', 'en' => 'Push notifications not supported in this browser'],
+            ['key' => 'notifications.push_settings_desc', 'group' => 'notifications', 'az' => 'Nailiyyətlər və uğurlar üçün push bildirişlərini idarə edin.', 'ru' => 'Управляйте push-уведомлениями для достижений и успехов.', 'en' => 'Manage push notifications for achievements and milestones.'],
 
             // Parent extras
             ['key' => 'parent.link_child_hint', 'group' => 'parent', 'az' => 'Uşağı qoşmaq üçün onun istifadəçi adını daxil edin', 'ru' => 'Введите имя пользователя ребёнка для привязки', 'en' => 'Enter child username to link them to your account'],
