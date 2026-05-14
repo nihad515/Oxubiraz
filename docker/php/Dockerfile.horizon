@@ -1,0 +1,76 @@
+# Production Horizon worker image
+# Runs Laravel Horizon under supervisord so Docker can restart on failure.
+#
+# Build from repo root:
+#   docker build -f docker/php/Dockerfile.horizon -t oxubiraz-horizon ./apps/api
+#
+# Usage in production docker-compose:
+#   horizon:
+#     image: oxubiraz-horizon
+#     restart: unless-stopped
+#     environment: *api-env
+
+FROM php:8.3-fpm-alpine AS builder
+
+RUN apk add --no-cache \
+    git curl \
+    libpng-dev libjpeg-turbo-dev libwebp-dev libzip-dev \
+    oniguruma-dev icu-dev freetype-dev
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install \
+        pdo_mysql mbstring gd zip intl bcmath opcache exif pcntl \
+    && pecl install redis && docker-php-ext-enable redis
+
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
+
+COPY . .
+
+RUN composer run-script post-autoload-dump --no-interaction || true \
+    && php artisan config:clear \
+    && php artisan route:clear \
+    && php artisan view:clear
+
+# ─── Final stage ────────────────────────────────────────────────────────────────
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache \
+    supervisor \
+    libpng libjpeg-turbo libwebp libzip oniguruma icu-libs freetype
+
+RUN apk add --no-cache \
+    libpng-dev libjpeg-turbo-dev libwebp-dev libzip-dev oniguruma-dev icu-dev freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install pdo_mysql mbstring gd zip intl bcmath opcache exif pcntl \
+    && pecl install redis && docker-php-ext-enable redis \
+    && apk del libpng-dev libjpeg-turbo-dev libwebp-dev libzip-dev oniguruma-dev icu-dev freetype-dev \
+    && rm -rf /tmp/pear
+
+COPY docker/php/opcache.ini  /usr/local/etc/php/conf.d/opcache.ini
+COPY docker/php/php.prod.ini /usr/local/etc/php/conf.d/php.prod.ini
+COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
+
+WORKDIR /var/www/html
+
+COPY --from=builder /var/www/html .
+
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && mkdir -p /var/log/supervisor
+
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    || true
+
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord.conf"]

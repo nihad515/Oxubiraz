@@ -5,12 +5,13 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, School, Shield, Languages, FileText, BookOpen,
   BarChart3, Trophy, Bell, Settings, Zap, Home, Star, List,
-  GraduationCap, Heart, ChevronLeft, ChevronRight,
+  GraduationCap, Heart, ChevronLeft, ChevronRight, Activity,
 } from 'lucide-react';
 
 import { usePermission } from '@/hooks/use-permission';
 import { useString } from '@/hooks/use-string';
 import { useUiStore } from '@/store/ui-store';
+import { APP_CONFIG } from '@/config/app';
 import { ROUTES } from '@/config/routes';
 import { PERMISSIONS } from '@/types/permissions';
 import { cn } from '@/lib/utils/cn';
@@ -23,12 +24,14 @@ interface NavItem {
   permission?: string;
   badge?: string;
   exact?: boolean;
+  external?: boolean;
 }
 
 function useNavItems(): NavItem[] {
   const { isAdmin, isTeacher, isStudent, isParent } = usePermission();
 
   if (isAdmin) {
+    const horizonUrl = APP_CONFIG.apiUrl.replace(/\/api(\/v\d+)?$/, '') + '/horizon';
     return [
       { href: ROUTES.admin.root, icon: <LayoutDashboard size={20} />, labelKey: 'nav.dashboard', exact: true },
       { href: ROUTES.admin.users, icon: <Users size={20} />, labelKey: 'nav.users', permission: PERMISSIONS.VIEW_USERS },
@@ -41,6 +44,7 @@ function useNavItems(): NavItem[] {
       { href: ROUTES.admin.analytics, icon: <BarChart3 size={20} />, labelKey: 'nav.analytics', permission: PERMISSIONS.VIEW_STATISTICS },
       { href: ROUTES.admin.notifications, icon: <Bell size={20} />, labelKey: 'nav.notifications' },
       { href: ROUTES.admin.settings, icon: <Settings size={20} />, labelKey: 'nav.settings', permission: PERMISSIONS.MANAGE_SETTINGS },
+      { href: horizonUrl, icon: <Activity size={20} />, labelKey: 'nav.queue_monitor', permission: PERMISSIONS.MANAGE_SETTINGS, external: true },
     ];
   }
 
@@ -121,19 +125,16 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
-          {visibleItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                  'touch-manipulation min-h-[44px]',
-                  isActive(item)
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
-                )}
-                title={sidebarCollapsed ? t(item.labelKey) : undefined}
-              >
+          {visibleItems.map((item) => {
+            const linkClass = cn(
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
+              'touch-manipulation min-h-[44px]',
+              isActive(item)
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+            );
+            const inner = (
+              <>
                 <span className="flex-shrink-0">{item.icon}</span>
                 {!sidebarCollapsed && (
                   <>
@@ -145,9 +146,32 @@ export function Sidebar() {
                     )}
                   </>
                 )}
-              </Link>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={item.href}>
+                {item.external ? (
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                    title={sidebarCollapsed ? t(item.labelKey) : undefined}
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={linkClass}
+                    title={sidebarCollapsed ? t(item.labelKey) : undefined}
+                  >
+                    {inner}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

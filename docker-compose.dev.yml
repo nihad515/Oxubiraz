@@ -72,15 +72,15 @@ services:
       redis:
         condition: service_healthy
 
-  # ── Queue worker ─────────────────────────────────────────────────────────────
-  queue:
+  # ── Horizon (queue monitor + worker) ─────────────────────────────────────────
+  horizon:
     build:
       context: ./apps/api
       dockerfile: ../../docker/php/Dockerfile.dev
-    container_name: oxubiraz_queue
+    container_name: oxubiraz_horizon
     restart: unless-stopped
     working_dir: /var/www/html
-    command: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+    command: php artisan horizon
     volumes:
       - ./apps/api:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini:ro

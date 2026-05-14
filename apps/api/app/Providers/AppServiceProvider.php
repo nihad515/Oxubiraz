@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Laravel\Horizon\Horizon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,23 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('game', fn (Request $r) =>
             Limit::perMinute(120)->by($r->user()?->id ?: $r->ip())
         );
+
+        // Horizon dashboard access: open in local, HTTP Basic Auth in production
+        Horizon::auth(function (Request $request) {
+            if (app()->environment('local')) {
+                return true;
+            }
+
+            $username = env('HORIZON_USERNAME', '');
+            $password = env('HORIZON_PASSWORD', '');
+
+            if (empty($username) || empty($password)) {
+                return false;
+            }
+
+            return $request->getUser() === $username
+                && $request->getPassword() === $password;
+        });
 
         // Broadcast every new DB notification to the user's private channel
         DatabaseNotification::created(function (DatabaseNotification $notification) {

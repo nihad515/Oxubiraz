@@ -591,6 +591,9 @@ class SystemStringSeeder extends Seeder
             ['key' => 'game.ai_keep_going', 'group' => 'game', 'az' => 'Fokus sözlərinizdə yaxşı irəliləyiş. Onları mənimsəmək üçün məşq etməyə davam edin.', 'ru' => 'Хороший прогресс с целевыми словами. Продолжайте тренироваться.', 'en' => 'Good progress on focus words. Keep practicing to master them.'],
             ['key' => 'game.ai_needs_work', 'group' => 'game', 'az' => 'Bu sözlər daha çox məşq tələb edir. Süni İntelekt onları növbəti sessiyada prioritetləşdirəcək.', 'ru' => 'Эти слова требуют большей практики. ИИ приоритизирует их в следующей сессии.', 'en' => 'These words need more practice. AI will prioritize them next session.'],
 
+            // Navigation — queue monitor
+            ['key' => 'nav.queue_monitor', 'group' => 'nav', 'az' => 'Növbə Monitoru', 'ru' => 'Монитор очереди', 'en' => 'Queue Monitor'],
+
             // PDF progress report
             ['key' => 'report.download_pdf', 'group' => 'report', 'az' => 'PDF Yüklə', 'ru' => 'Скачать PDF', 'en' => 'Download PDF'],
             ['key' => 'report.downloading', 'group' => 'report', 'az' => 'Yüklənir...', 'ru' => 'Загрузка...', 'en' => 'Downloading...'],
