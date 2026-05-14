@@ -7,6 +7,7 @@ use App\Models\GameSession;
 use App\Models\User;
 use App\Models\School;
 use App\Models\SchoolClass;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -201,6 +202,56 @@ class AnalyticsController extends Controller
         return response()->json(['status' => 'success', 'data' => $stats]);
     }
 
+    public function reportPdf(Request $request, User $user): mixed
+    {
+        $this->authorize('view_statistics', $user);
+
+        $sessions = GameSession::byUser($user->id);
+
+        $stats = [
+            'total_sessions'   => (clone $sessions)->count(),
+            'average_wpm'      => (int) ((clone $sessions)->avg('wpm') ?? 0),
+            'best_wpm'         => (clone $sessions)->max('wpm') ?? 0,
+            'total_words_read' => (clone $sessions)->sum('clicked_words'),
+            'completion_rate'  => $this->getCompletionRate($user->id),
+        ];
+
+        $byLanguage = $this->getStatsByLanguage($user->id);
+        $maxLanguageSessions = collect($byLanguage)->max('sessions') ?: 1;
+
+        $wpmTrend = GameSession::byUser($user->id)
+            ->select(['wpm', 'mode', 'language', DB::raw('DATE(created_at) as date')])
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get()
+            ->reverse()
+            ->values()
+            ->toArray();
+
+        $lang = $request->input('lang', 'en');
+
+        $pdf = Pdf::loadView('reports.student-progress', [
+            'student'             => [
+                'name'        => $user->full_name,
+                'username'    => $user->username,
+                'level'       => $user->level,
+                'xp'          => $user->xp,
+                'streak_days' => $user->streak_days,
+            ],
+            'stats'               => $stats,
+            'byLanguage'          => $byLanguage,
+            'maxLanguageSessions' => $maxLanguageSessions,
+            'wpmTrend'            => $wpmTrend,
+            'generatedAt'         => now()->format('Y-m-d H:i'),
+            'labels'              => $this->reportLabels($lang),
+            'lang'                => $lang,
+        ])->setPaper('a4');
+
+        $filename = 'student-progress-' . $user->username . '-' . now()->format('Ymd') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
     public function export(Request $request): mixed
     {
         $format = $request->input('format', 'csv');
@@ -221,6 +272,66 @@ class AnalyticsController extends Controller
             }
             fclose($out);
         }, 'analytics.csv', ['Content-Type' => 'text/csv']);
+    }
+
+    private function reportLabels(string $lang): array
+    {
+        return match ($lang) {
+            'az' => [
+                'title'           => 'Şagird İrəliləyiş Hesabatı',
+                'generated'       => 'Yaradılıb',
+                'performance'     => 'Performans Göstəriciləri',
+                'best_wpm'        => 'Ən Yaxşı SDS',
+                'avg_wpm'         => 'Orta SDS',
+                'words_read'      => 'Oxunan Sözlər',
+                'sessions'        => 'Sessiyalar',
+                'completion_rate' => 'Tamamlanma',
+                'by_language'     => 'Dilə Görə',
+                'recent_sessions' => 'Son Sessiyalar',
+                'date'            => 'Tarix',
+                'mode'            => 'Rejim',
+                'language'        => 'Dil',
+                'wpm'             => 'SDS',
+                'level'           => 'Səviyyə',
+                'days'            => ' gün ardıcıl',
+            ],
+            'ru' => [
+                'title'           => 'Отчёт об успеваемости ученика',
+                'generated'       => 'Сформирован',
+                'performance'     => 'Показатели эффективности',
+                'best_wpm'        => 'Лучший СвМ',
+                'avg_wpm'         => 'Средний СвМ',
+                'words_read'      => 'Слов прочитано',
+                'sessions'        => 'Сессии',
+                'completion_rate' => 'Завершённость',
+                'by_language'     => 'По языкам',
+                'recent_sessions' => 'Последние сессии',
+                'date'            => 'Дата',
+                'mode'            => 'Режим',
+                'language'        => 'Язык',
+                'wpm'             => 'СвМ',
+                'level'           => 'Уровень',
+                'days'            => ' дн. подряд',
+            ],
+            default => [
+                'title'           => 'Student Progress Report',
+                'generated'       => 'Generated',
+                'performance'     => 'Performance Overview',
+                'best_wpm'        => 'Best WPM',
+                'avg_wpm'         => 'Avg WPM',
+                'words_read'      => 'Words Read',
+                'sessions'        => 'Sessions',
+                'completion_rate' => 'Completion Rate',
+                'by_language'     => 'By Language',
+                'recent_sessions' => 'Recent Sessions',
+                'date'            => 'Date',
+                'mode'            => 'Mode',
+                'language'        => 'Language',
+                'wpm'             => 'WPM',
+                'level'           => 'Level',
+                'days'            => 'd streak',
+            ],
+        };
     }
 
     private function getWpmTrend(int $userId, int $limit = 10): array

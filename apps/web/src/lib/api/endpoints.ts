@@ -137,6 +137,7 @@ export const API = {
   analytics: {
     overview: '/analytics/overview',
     student: (id: number) => `/analytics/student/${id}`,
+    studentReport: (id: number) => `/analytics/student/${id}/report`,
     myStats: '/analytics/me',
     daily: '/analytics/daily',
     monthly: '/analytics/monthly',

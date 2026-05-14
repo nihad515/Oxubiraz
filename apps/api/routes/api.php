@@ -197,6 +197,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::middleware('permission:view_statistics')->group(function () {
                 Route::get('overview', [AnalyticsController::class, 'overview'])->name('overview');
                 Route::get('student/{user}', [AnalyticsController::class, 'studentStats'])->name('student');
+                Route::get('student/{user}/report', [AnalyticsController::class, 'reportPdf'])->name('student.report');
                 Route::get('daily', [AnalyticsController::class, 'daily'])->name('daily');
                 Route::get('monthly', [AnalyticsController::class, 'monthly'])->name('monthly');
                 Route::get('yearly', [AnalyticsController::class, 'yearly'])->name('yearly');

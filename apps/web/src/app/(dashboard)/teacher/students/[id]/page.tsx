@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, TrendingUp, BarChart3, Flame, Trophy, Clock, FileDown, Loader2 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, BarChart3, Flame, Trophy, FileDown, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ import { ModeBreakdownChart } from '@/components/analytics/mode-breakdown-chart'
 import { formatWpm, formatNumber, calculateXpToNextLevel } from '@/lib/utils/format';
 import { LEVEL_THRESHOLDS } from '@/types/gamification';
 
-export default function ChildDetailPage() {
+export default function TeacherStudentDetailPage() {
   const { t } = useString();
   const { locale } = useStringStore();
   const router = useRouter();
@@ -29,10 +29,31 @@ export default function ChildDetailPage() {
   const [downloading, setDownloading] = useState(false);
 
   const { data: stats, isLoading } = useQuery({
-    queryKey: ['parent', 'child-stats', id],
-    queryFn: () => apiClient.get(API.parent.childStats(Number(id))),
+    queryKey: ['teacher', 'student-stats', id],
+    queryFn: () => apiClient.get(API.analytics.student(Number(id))),
     select: (d: any) => d.data,
   });
+
+  const downloadPdf = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const response = await apiClient.axios.get(
+        API.analytics.studentReport(Number(id)),
+        { params: { lang: locale }, responseType: 'blob' },
+      );
+      const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `student-progress-${stats?.user?.username ?? id}-${new Date().toISOString().slice(0, 10)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,7 +71,7 @@ export default function ChildDetailPage() {
   if (!stats) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <p className="text-muted-foreground">{t('parent.child_not_found', {}, 'Child not found.')}</p>
+        <p className="text-muted-foreground">{t('teacher.student_not_found', {}, 'Student not found.')}</p>
         <Button variant="outline" className="mt-4" onClick={() => router.back()}>
           {t('common.go_back', {}, 'Go Back')}
         </Button>
@@ -58,36 +79,15 @@ export default function ChildDetailPage() {
     );
   }
 
-  const xpInfo = calculateXpToNextLevel(stats.xp, LEVEL_THRESHOLDS);
-
-  const downloadPdf = async () => {
-    if (downloading) return;
-    setDownloading(true);
-    try {
-      const response = await apiClient.axios.get(
-        API.analytics.studentReport(Number(id)),
-        { params: { lang: locale }, responseType: 'blob' },
-      );
-      const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `student-progress-${stats.username ?? id}-${new Date().toISOString().slice(0, 10)}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } finally {
-      setDownloading(false);
-    }
-  };
+  const xpInfo = calculateXpToNextLevel(stats.user?.xp ?? 0, LEVEL_THRESHOLDS);
 
   const summaryStats = [
-    { icon: <TrendingUp size={16} className="text-blue-500" />, label: t('analytics.best_wpm', {}, 'Best WPM'), value: formatWpm(stats.best_wpm), color: 'text-blue-500' },
-    { icon: <BarChart3 size={16} className="text-purple-500" />, label: t('analytics.avg_wpm', {}, 'Avg WPM'), value: formatWpm(stats.average_wpm), color: 'text-purple-500' },
-    { icon: <Clock size={16} className="text-green-500" />, label: t('analytics.today', {}, 'Today'), value: stats.sessions_today ?? 0, color: 'text-green-500' },
-    { icon: <BarChart3 size={16} className="text-orange-500" />, label: t('analytics.total_sessions', {}, 'Total Sessions'), value: stats.total_sessions ?? 0, color: 'text-orange-500' },
-    { icon: <Trophy size={16} className="text-yellow-500" />, label: t('gamification.achievements', {}, 'Achievements'), value: stats.achievements_count ?? 0, color: 'text-yellow-500' },
-    { icon: <Flame size={16} className="text-red-500" />, label: t('gamification.streak', {}, 'Streak'), value: `${stats.streak_days ?? 0}d`, color: 'text-red-500' },
+    { label: t('analytics.best_wpm', {}, 'Best WPM'), value: formatWpm(stats.best_wpm), color: 'text-blue-500' },
+    { label: t('analytics.avg_wpm', {}, 'Avg WPM'), value: formatWpm(stats.average_wpm), color: 'text-purple-500' },
+    { label: t('analytics.total_sessions', {}, 'Total Sessions'), value: stats.total_sessions ?? 0, color: 'text-orange-500' },
+    { label: t('analytics.words_read', {}, 'Words Read'), value: formatNumber(stats.total_words_read ?? 0), color: 'text-green-500' },
+    { label: t('analytics.completion', {}, 'Completion'), value: `${stats.completion_rate ?? 0}%`, color: 'text-teal-500' },
+    { label: t('gamification.streak', {}, 'Streak'), value: `${stats.user?.streak_days ?? 0}d`, color: 'text-red-500' },
   ];
 
   return (
@@ -99,8 +99,8 @@ export default function ChildDetailPage() {
             <ArrowLeft size={18} />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{stats.name}</h1>
-            <p className="text-sm text-muted-foreground">@{stats.username}</p>
+            <h1 className="text-2xl font-bold">{stats.user?.name}</h1>
+            <p className="text-sm text-muted-foreground">@{stats.user?.username}</p>
           </div>
         </div>
         <Button
@@ -127,37 +127,35 @@ export default function ChildDetailPage() {
           <CardContent className="pt-6 space-y-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-md shrink-0">
-                <span className="text-2xl font-black text-primary-foreground">{stats.level}</span>
+                <span className="text-2xl font-black text-primary-foreground">{stats.user?.level}</span>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-lg font-bold">{t('gamification.level', {}, 'Level')} {stats.level}</span>
-                  <Badge variant="secondary">{formatNumber(stats.xp)} XP</Badge>
-                  {stats.school && <Badge variant="outline">{stats.school}{stats.class ? ` · ${stats.class}` : ''}</Badge>}
+                  <span className="text-lg font-bold">{t('gamification.level', {}, 'Level')} {stats.user?.level}</span>
+                  <Badge variant="secondary">{formatNumber(stats.user?.xp ?? 0)} XP</Badge>
                 </div>
                 <div className="mt-2 space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{xpInfo.xpInLevel} / {xpInfo.xpNeeded} XP {t('gamification.to_next', {}, 'to next level')}</span>
+                    <span>{xpInfo.xpInLevel} / {xpInfo.xpNeeded} XP</span>
                     <span>{Math.round(xpInfo.progress)}%</span>
                   </div>
-                  <Progress value={xpInfo.progress} className="h-2.5" indicatorClassName="bg-gradient-to-r from-brand-400 to-brand-600" />
+                  <Progress value={xpInfo.progress} className="h-2" indicatorClassName="bg-gradient-to-r from-brand-400 to-brand-600" />
                 </div>
               </div>
             </div>
 
-            {stats.streak_days > 0 && (
+            {(stats.user?.streak_days ?? 0) > 0 && (
               <div className="flex items-center gap-2 rounded-xl bg-orange-50 p-3 dark:bg-orange-950/20">
-                <Flame size={18} className="text-orange-500" />
-                <span className="font-semibold text-orange-700 dark:text-orange-300 text-sm">
-                  {t('gamification.streak', { days: stats.streak_days }, `${stats.streak_days} day streak!`)}
+                <Flame size={16} className="text-orange-500" />
+                <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">
+                  {t('gamification.streak', { days: stats.user?.streak_days })}
                 </span>
               </div>
             )}
 
             <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-              {summaryStats.map(({ icon, label, value, color }) => (
+              {summaryStats.map(({ label, value, color }) => (
                 <div key={label} className="rounded-xl bg-muted/30 p-3 text-center">
-                  <div className="flex justify-center mb-1">{icon}</div>
                   <div className={`text-xl font-black ${color}`}>{value}</div>
                   <div className="text-xs text-muted-foreground leading-tight mt-0.5">{label}</div>
                 </div>
@@ -196,7 +194,9 @@ export default function ChildDetailPage() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{t('analytics.by_mode', {}, 'By Game Mode')}</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2">
+                <BarChart3 size={16} />{t('analytics.by_mode', {}, 'By Game Mode')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ModeBreakdownChart data={stats.by_mode} height={200} />
@@ -205,18 +205,18 @@ export default function ChildDetailPage() {
         </motion.div>
       </div>
 
-      {/* Recent achievements */}
-      {stats.recent_achievements?.length > 0 && (
+      {/* Trophy / achievements placeholder if present */}
+      {(stats.achievements ?? []).length > 0 && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Trophy size={16} />{t('gamification.recent_achievements', {}, 'Recent Achievements')}
+                <Trophy size={16} />{t('gamification.achievements', {}, 'Achievements')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {stats.recent_achievements.map((a: any) => (
+                {stats.achievements.map((a: any) => (
                   <Badge key={a.id} variant="secondary" className="gap-1 py-1 px-2">
                     {a.icon && <span>{a.icon}</span>}
                     {a.name}
