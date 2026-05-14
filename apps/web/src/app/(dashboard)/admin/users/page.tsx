@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Search, Plus, MoreHorizontal, Shield, Trash2, ToggleLeft } from 'lucide-react';
+import { Users, Search, Shield, Trash2, ToggleLeft, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -149,6 +149,14 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 font-medium">{user.level}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => window.location.href = `/admin/users/${user.id}`}
+                            title={t('admin.view_user', {}, 'View User')}
+                          >
+                            <Eye size={16} />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon-sm"

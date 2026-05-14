@@ -1,10 +1,12 @@
 name: oxubiraz-prod
 
+x-registry: &registry ${REGISTRY:-ghcr.io/oxubiraz/oxubiraz}
+x-api-tag:  &api-tag  ${API_TAG:-latest}
+x-web-tag:  &web-tag  ${WEB_TAG:-latest}
+
 services:
   web:
-    build:
-      context: ./apps/web
-      dockerfile: ../../docker/web/Dockerfile.prod
+    image: ${REGISTRY:-ghcr.io/oxubiraz/oxubiraz}/web:${WEB_TAG:-latest}
     container_name: oxubiraz_web_prod
     restart: always
     expose:
@@ -13,30 +15,27 @@ services:
       - NODE_ENV=production
     networks:
       - oxubiraz_prod_network
-    deploy:
-      resources:
-        limits:
-          memory: 512M
 
   api:
-    build:
-      context: ./apps/api
-      dockerfile: ../../docker/php/Dockerfile.prod
+    image: ${REGISTRY:-ghcr.io/oxubiraz/oxubiraz}/api:${API_TAG:-latest}
     container_name: oxubiraz_api_prod
     restart: always
     working_dir: /var/www/html
+    env_file: .env.prod
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - oxubiraz_prod_storage:/var/www/html/storage/app
     networks:
       - oxubiraz_prod_network
-    deploy:
-      resources:
-        limits:
-          memory: 256M
 
   nginx:
     image: nginx:1.27-alpine
@@ -57,6 +56,51 @@ services:
     networks:
       - oxubiraz_prod_network
 
+  horizon:
+    image: ${REGISTRY:-ghcr.io/oxubiraz/oxubiraz}/horizon:${API_TAG:-latest}
+    container_name: oxubiraz_horizon_prod
+    restart: always
+    working_dir: /var/www/html
+    env_file: .env.prod
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - oxubiraz_prod_storage:/var/www/html/storage/app
+      - oxubiraz_horizon_logs:/var/log/supervisor
+    stop_grace_period: 60s
+    networks:
+      - oxubiraz_prod_network
+
+  scheduler:
+    image: ${REGISTRY:-ghcr.io/oxubiraz/oxubiraz}/api:${API_TAG:-latest}
+    container_name: oxubiraz_scheduler_prod
+    restart: always
+    working_dir: /var/www/html
+    env_file: .env.prod
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - DB_HOST=mysql
+      - REDIS_HOST=redis
+    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction & sleep 60; done"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - oxubiraz_prod_storage:/var/www/html/storage/app
+    networks:
+      - oxubiraz_prod_network
+
   mysql:
     image: mysql:8.0
     container_name: oxubiraz_mysql_prod
@@ -71,10 +115,12 @@ services:
       - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     networks:
       - oxubiraz_prod_network
-    deploy:
-      resources:
-        limits:
-          memory: 512M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   redis:
     image: redis:7.4-alpine
@@ -86,34 +132,11 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD}
     networks:
       - oxubiraz_prod_network
-
-  queue:
-    build:
-      context: ./apps/api
-      dockerfile: ../../docker/php/Dockerfile.prod
-    container_name: oxubiraz_queue_prod
-    restart: always
-    working_dir: /var/www/html
-    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
-    depends_on:
-      - mysql
-      - redis
-    networks:
-      - oxubiraz_prod_network
-
-  scheduler:
-    build:
-      context: ./apps/api
-      dockerfile: ../../docker/php/Dockerfile.prod
-    container_name: oxubiraz_scheduler_prod
-    restart: always
-    working_dir: /var/www/html
-    command: sh -c "while true; do php artisan schedule:run --verbose --no-interaction & sleep 60; done"
-    depends_on:
-      - mysql
-      - redis
-    networks:
-      - oxubiraz_prod_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   certbot:
     image: certbot/certbot
@@ -126,6 +149,8 @@ services:
 volumes:
   oxubiraz_prod_mysql:
   oxubiraz_prod_redis:
+  oxubiraz_prod_storage:
+  oxubiraz_horizon_logs:
   certbot_www:
   certbot_conf:
 

@@ -49,6 +49,16 @@ jobs:
           cache-from: type=gha,scope=api
           cache-to: type=gha,mode=max,scope=api
 
+      - name: Build and push Horizon image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/api
+          file: docker/php/Dockerfile.horizon
+          push: true
+          tags: ghcr.io/${{ github.repository }}/horizon:${{ github.sha }},ghcr.io/${{ github.repository }}/horizon:latest
+          cache-from: type=gha,scope=horizon
+          cache-to: type=gha,mode=max,scope=horizon
+
       - name: Build and push Web image
         uses: docker/build-push-action@v5
         with:
@@ -77,23 +87,28 @@ jobs:
             # Pull new images
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull ghcr.io/${{ github.repository }}/api:${{ github.sha }}
+            docker pull ghcr.io/${{ github.repository }}/horizon:${{ github.sha }}
             docker pull ghcr.io/${{ github.repository }}/web:${{ github.sha }}
 
             # Update compose override with exact SHA tags
+            export REGISTRY=ghcr.io/${{ github.repository }}
             export API_TAG=${{ github.sha }}
             export WEB_TAG=${{ github.sha }}
 
             # Rolling update — zero downtime
-            docker compose up -d --no-deps --scale api=2 api
+            docker compose -f docker-compose.prod.yml up -d --no-deps --scale api=2 api
             sleep 15
-            docker compose up -d --no-deps --scale api=1 api
+            docker compose -f docker-compose.prod.yml up -d --no-deps --scale api=1 api
 
-            docker compose up -d --no-deps web
-            docker compose up -d --no-deps nginx
+            docker compose -f docker-compose.prod.yml up -d --no-deps web
+            docker compose -f docker-compose.prod.yml up -d --no-deps nginx
+
+            # Deploy horizon (graceful stop — waits for in-flight jobs)
+            docker compose -f docker-compose.prod.yml up -d --no-deps horizon
 
             # Run migrations (single shot, not scaled)
-            docker compose exec -T api php artisan migrate --force
-            docker compose exec -T api php artisan optimize
+            docker compose -f docker-compose.prod.yml exec -T api php artisan migrate --force
+            docker compose -f docker-compose.prod.yml exec -T api php artisan optimize
 
             # Prune old images
             docker image prune -f

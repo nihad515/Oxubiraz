@@ -602,6 +602,14 @@ class SystemStringSeeder extends Seeder
             ['key' => 'teacher.view_progress', 'group' => 'teacher', 'az' => 'Nəticələrə bax', 'ru' => 'Смотреть успехи', 'en' => 'View Progress'],
             ['key' => 'teacher.student_not_found', 'group' => 'teacher', 'az' => 'Tələbə tapılmadı.', 'ru' => 'Ученик не найден.', 'en' => 'Student not found.'],
 
+            // Admin user detail
+            ['key' => 'admin.view_user', 'group' => 'admin', 'az' => 'İstifadəçiyə bax', 'ru' => 'Просмотр пользователя', 'en' => 'View User'],
+            ['key' => 'admin.user_not_found', 'group' => 'admin', 'az' => 'İstifadəçi tapılmadı.', 'ru' => 'Пользователь не найден.', 'en' => 'User not found.'],
+            ['key' => 'admin.no_game_analytics', 'group' => 'admin', 'az' => 'Oyun analitikası yalnız şagirdlər üçün əlçatandır.', 'ru' => 'Игровая аналитика доступна только для учеников.', 'en' => 'Game analytics are only available for students.'],
+
+            // Common — join date
+            ['key' => 'common.joined', 'group' => 'common', 'az' => 'Qoşulub', 'ru' => 'Дата регистрации', 'en' => 'Joined'],
+
             // AI coaching panel (game result)
             ['key' => 'game.coaching_title', 'group' => 'game', 'az' => 'Süni İntelekt Məşqçisi', 'ru' => 'ИИ-тренер', 'en' => 'AI Coach'],
             ['key' => 'game.get_coaching', 'group' => 'game', 'az' => 'Rəy al', 'ru' => 'Получить отзыв', 'en' => 'Get feedback'],
