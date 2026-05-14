@@ -14,52 +14,35 @@
 
 ## Step 1 — Server Setup
 
+Run the provisioning script on a fresh Ubuntu 22.04 LTS server:
+
 ```bash
-# Update system
-apt update && apt upgrade -y
-
-# Install Docker & Docker Compose
-curl -fsSL https://get.docker.com | sh
-usermod -aG docker $USER
-
-# Install fail2ban
-apt install -y fail2ban ufw
-
-# Configure firewall
-ufw allow ssh
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw enable
+curl -fsSL https://raw.githubusercontent.com/your-org/oxubiraz/main/scripts/server-setup.sh | sudo bash
 ```
+
+This installs Docker CE, configures UFW (ports 22/80/443), fail2ban, creates the `deploy` user, sets up swap, and enables unattended security upgrades.
 
 ---
 
-## Step 2 — Deploy Application
+## Step 2 — First Deploy
 
 ```bash
-# Clone repository
-git clone https://github.com/your-org/oxubiraz.git /var/www/oxubiraz
-cd /var/www/oxubiraz
+# On the server as the deploy user
+cd /opt/oxubiraz
 
-# Create production env files
-cp apps/api/.env.example apps/api/.env
-# ⚠️ Edit: DB_PASSWORD, REDIS_PASSWORD, APP_KEY, PUSHER_*, OPENAI_API_KEY
+# Copy and edit the production env file
+cp .env.prod.example .env.prod
+nano .env.prod   # fill in every value
 
-# Set APP_KEY
-docker run --rm -v $(pwd)/apps/api:/app php:8.3-cli sh -c "cd /app && php artisan key:generate"
+# Copy compose file and docker configs
+scp docker-compose.prod.yml deploy@your-server:/opt/oxubiraz/
+scp -r docker/ deploy@your-server:/opt/oxubiraz/
 
-# Build and start
-docker compose -f docker-compose.prod.yml up -d --build
-
-# Run migrations
-docker exec oxubiraz_api_prod php artisan migrate --force
-docker exec oxubiraz_api_prod php artisan db:seed --force
-docker exec oxubiraz_api_prod php artisan storage:link
-docker exec oxubiraz_api_prod php artisan config:cache
-docker exec oxubiraz_api_prod php artisan route:cache
-docker exec oxubiraz_api_prod php artisan view:cache
-docker exec oxubiraz_api_prod php artisan event:cache
+# Bootstrap the stack
+bash scripts/first-deploy.sh
 ```
+
+The first-deploy script: pulls images, waits for MySQL, runs migrations, seeds roles/permissions and system strings, starts all services.
 
 ---
 
