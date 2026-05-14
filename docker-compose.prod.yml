@@ -36,6 +36,12 @@ services:
       - oxubiraz_prod_storage:/var/www/html/storage/app
     networks:
       - oxubiraz_prod_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 30s
 
   nginx:
     image: nginx:1.27-alpine

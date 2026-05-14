@@ -97,7 +97,23 @@ jobs:
 
             # Rolling update — zero downtime
             docker compose -f docker-compose.prod.yml up -d --no-deps --scale api=2 api
-            sleep 15
+
+            # Wait for new API containers to pass the health check (max 90s)
+            echo "Waiting for API health check..."
+            HEALTH_URL="https://api.oxubiraz.az/api/health"
+            for i in $(seq 1 45); do
+              if curl -sf "$HEALTH_URL" > /dev/null 2>&1; then
+                echo "Health check passed after $((i * 2))s"
+                break
+              fi
+              if [ "$i" -eq 45 ]; then
+                echo "Health check timed out — rolling back"
+                docker compose -f docker-compose.prod.yml up -d --no-deps --scale api=1 api
+                exit 1
+              fi
+              sleep 2
+            done
+
             docker compose -f docker-compose.prod.yml up -d --no-deps --scale api=1 api
 
             docker compose -f docker-compose.prod.yml up -d --no-deps web

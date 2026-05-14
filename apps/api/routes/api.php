@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\Auth\PasswordController;
 use App\Http\Controllers\Api\V1\Auth\EmailVerificationController;
@@ -22,6 +23,9 @@ use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\ParentController;
 use App\Http\Controllers\Api\V1\PushSubscriptionController;
+
+// ───── Health check (no auth, no rate-limit) ─────
+Route::get('health', HealthController::class)->name('health');
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
 
