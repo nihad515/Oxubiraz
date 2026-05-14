@@ -130,6 +130,7 @@ export const API = {
     config: '/game/config',
     randomWords: '/game/random-words',
     aiProfile: '/game/ai-profile',
+    aiCoaching: '/game/ai-coaching',
   },
 
   // Analytics

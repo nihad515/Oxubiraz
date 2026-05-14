@@ -183,6 +183,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             Route::get('history', [GameController::class, 'history'])->name('history');
             Route::get('results', [GameController::class, 'results'])->name('results');
             Route::get('ai-profile', [GameController::class, 'aiProfile'])->name('ai-profile');
+            Route::post('ai-coaching', [GameController::class, 'aiCoaching'])->name('ai-coaching')
+                ->middleware('throttle:10,1'); // 10 requests per minute — OpenAI cost guard
             Route::post('start', [GameController::class, 'start'])->name('start')
                 ->middleware('throttle:game');
             Route::post('finish', [GameController::class, 'finish'])->name('finish');

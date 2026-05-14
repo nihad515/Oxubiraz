@@ -1,16 +1,20 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import ReactConfetti from 'react-confetti';
-import { RotateCcw, Trophy, Zap, CheckCircle, Clock, Star, Sparkles, Brain } from 'lucide-react';
+import { RotateCcw, Trophy, Zap, CheckCircle, Clock, Star, Sparkles, Brain, MessageSquare, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useGame } from '@/hooks/use-game';
 import { useString } from '@/hooks/use-string';
+import { useStringStore } from '@/store/string-store';
 import { formatWpm } from '@/lib/utils/format';
+import apiClient from '@/lib/api/client';
+import { API } from '@/lib/api/endpoints';
 
 interface GameResultProps {
   onPlayAgain: () => void;
@@ -18,8 +22,13 @@ interface GameResultProps {
 
 export function GameResult({ onPlayAgain }: GameResultProps) {
   const { t } = useString();
+  const { locale } = useStringStore();
   const { session, finalResult, elapsedMs, clickedCount, lastClickedIndex } = useGame();
   const windowSize = useRef({ width: window?.innerWidth ?? 0, height: window?.innerHeight ?? 0 });
+
+  const [coachingTip, setCoachingTip] = useState<string | null>(null);
+  const [coachingLoading, setCoachingLoading] = useState(false);
+  const [coachingFetched, setCoachingFetched] = useState(false);
 
   if (!session) return null;
 
@@ -38,6 +47,28 @@ export function GameResult({ onPlayAgain }: GameResultProps) {
   const targetedRate = targetedWords.length > 0
     ? Math.round((targetedRead / targetedWords.length) * 100)
     : null;
+
+  const fetchCoaching = async () => {
+    if (coachingFetched) return;
+    setCoachingLoading(true);
+    setCoachingFetched(true);
+    try {
+      const res: any = await apiClient.post(API.game.aiCoaching, {
+        wpm,
+        accuracy,
+        mode: session.config.mode,
+        duration: session.config.duration,
+        language: locale,
+        targeted_rate: targetedRate,
+        top_weak_words: targetedWords.filter(w => !w.clicked).map(w => w.text).slice(0, 5),
+      });
+      setCoachingTip(res.data?.tip ?? null);
+    } catch {
+      setCoachingTip(null);
+    } finally {
+      setCoachingLoading(false);
+    }
+  };
 
   const getPerformanceRating = () => {
     if (wpm >= 200) return { label: 'Excellent!', emoji: '🏆', color: 'text-yellow-500' };
@@ -194,6 +225,50 @@ export function GameResult({ onPlayAgain }: GameResultProps) {
           </p>
         </motion.div>
       )}
+
+      {/* AI Coaching tip */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75 }}
+        className="rounded-xl border p-4 space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <MessageSquare size={15} className="text-muted-foreground" />
+            {t('game.coaching_title', {}, 'AI Coach')}
+          </div>
+          {!coachingFetched && (
+            <Button variant="outline" size="sm" onClick={fetchCoaching}>
+              <Sparkles size={13} className="mr-1.5" />
+              {t('game.get_coaching', {}, 'Get feedback')}
+            </Button>
+          )}
+        </div>
+
+        {coachingLoading && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 size={14} className="animate-spin" />
+            {t('game.coaching_loading', {}, 'Generating your personalised tip…')}
+          </div>
+        )}
+
+        {coachingTip && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-sm text-foreground leading-relaxed"
+          >
+            {coachingTip}
+          </motion.p>
+        )}
+
+        {coachingFetched && !coachingLoading && !coachingTip && (
+          <p className="text-xs text-muted-foreground">
+            {t('game.coaching_unavailable', {}, 'AI coaching is not available right now.')}
+          </p>
+        )}
+      </motion.div>
 
       {/* Actions */}
       <div className="flex flex-col gap-3 sm:flex-row">

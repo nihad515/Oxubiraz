@@ -6,12 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\GameSessionResource;
 use App\Models\GameSession;
 use App\Services\GameService;
+use App\Services\OpenAiCoachingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    public function __construct(private readonly GameService $gameService) {}
+    public function __construct(
+        private readonly GameService $gameService,
+        private readonly OpenAiCoachingService $coachingService,
+    ) {}
 
     public function start(Request $request): JsonResponse
     {
@@ -105,6 +109,26 @@ class GameController extends Controller
                 'difficulties' => ['beginner', 'elementary', 'intermediate', 'advanced', 'expert'],
                 'default_word_count' => 50,
             ],
+        ]);
+    }
+
+    public function aiCoaching(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'wpm'           => ['required', 'integer', 'min:0', 'max:1000'],
+            'accuracy'      => ['required', 'integer', 'min:0', 'max:100'],
+            'mode'          => ['required', 'in:random_words,text_reading,sentence_reading,memory,ai'],
+            'duration'      => ['required', 'integer', 'in:30,60,90'],
+            'language'      => ['required', 'in:az,ru,en'],
+            'targeted_rate' => ['sometimes', 'nullable', 'integer', 'min:0', 'max:100'],
+            'top_weak_words'=> ['sometimes', 'array'],
+        ]);
+
+        $tip = $this->coachingService->coaching($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'data'   => ['tip' => $tip],
         ]);
     }
 

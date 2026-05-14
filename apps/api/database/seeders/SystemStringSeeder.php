@@ -590,6 +590,12 @@ class SystemStringSeeder extends Seeder
             ['key' => 'game.ai_great_focus', 'group' => 'game', 'az' => 'Fokus sözlərinizdə əla iş! Növbəti sessiyada çətinlik artacaq.', 'ru' => 'Отличная работа с целевыми словами! В следующей сессии сложность возрастёт.', 'en' => 'Great job on your focus words! Difficulty will increase next session.'],
             ['key' => 'game.ai_keep_going', 'group' => 'game', 'az' => 'Fokus sözlərinizdə yaxşı irəliləyiş. Onları mənimsəmək üçün məşq etməyə davam edin.', 'ru' => 'Хороший прогресс с целевыми словами. Продолжайте тренироваться.', 'en' => 'Good progress on focus words. Keep practicing to master them.'],
             ['key' => 'game.ai_needs_work', 'group' => 'game', 'az' => 'Bu sözlər daha çox məşq tələb edir. Süni İntelekt onları növbəti sessiyada prioritetləşdirəcək.', 'ru' => 'Эти слова требуют большей практики. ИИ приоритизирует их в следующей сессии.', 'en' => 'These words need more practice. AI will prioritize them next session.'],
+
+            // AI coaching panel (game result)
+            ['key' => 'game.coaching_title', 'group' => 'game', 'az' => 'Süni İntelekt Məşqçisi', 'ru' => 'ИИ-тренер', 'en' => 'AI Coach'],
+            ['key' => 'game.get_coaching', 'group' => 'game', 'az' => 'Rəy al', 'ru' => 'Получить отзыв', 'en' => 'Get feedback'],
+            ['key' => 'game.coaching_loading', 'group' => 'game', 'az' => 'Fərdi məsləhət hazırlanır…', 'ru' => 'Генерируем персональный совет…', 'en' => 'Generating your personalised tip…'],
+            ['key' => 'game.coaching_unavailable', 'group' => 'game', 'az' => 'Süni İntelekt məşqçisi hazırda mövcud deyil.', 'ru' => 'ИИ-тренер сейчас недоступен.', 'en' => 'AI coaching is not available right now.'],
         ]);
 
         $this->command->info('System strings seeded: ' . count($strings) . ' entries.');

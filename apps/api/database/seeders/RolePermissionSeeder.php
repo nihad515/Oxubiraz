@@ -49,6 +49,9 @@ class RolePermissionSeeder extends Seeder
         // Notifications
         'manage_notifications' => 'notifications',
 
+        // Parent
+        'view_children' => 'parent',
+
         // Settings
         'manage_settings' => 'settings',
 
@@ -94,6 +97,7 @@ class RolePermissionSeeder extends Seeder
         ],
         'parent' => [
             'view_own_statistics',
+            'view_children',
         ],
     ];
 
